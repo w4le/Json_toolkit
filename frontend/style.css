@@ -1,0 +1,593 @@
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --background: #08090c;
+    --panel: #101218;
+    --panel-hover: #151821;
+    --border: #242832;
+    --text: #f4f7fb;
+    --muted: #8b93a3;
+    --accent: #6d7cff;
+    --accent-hover: #8290ff;
+    --success: #35d39a;
+}
+
+body {
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at 50% -20%,
+            rgba(109, 124, 255, 0.18),
+            transparent 40%
+        ),
+        var(--background);
+
+    color: var(--text);
+
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
+
+/* ---------- HEADER ---------- */
+
+header {
+    width: 100%;
+    padding: 28px 6%;
+
+    border-bottom: 1px solid var(--border);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: rgba(8, 9, 12, 0.72);
+
+    backdrop-filter: blur(14px);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-mark {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent),
+            #9b6dff
+        );
+
+    font-weight: 800;
+}
+
+header h1 {
+    font-size: 19px;
+    font-weight: 650;
+    letter-spacing: -0.4px;
+}
+
+header p {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+
+/* ---------- NAVIGATION ---------- */
+
+.tool-nav {
+    display: flex;
+    gap: 8px;
+
+    padding: 14px 6%;
+
+    border-bottom: 1px solid var(--border);
+
+    background: rgba(8, 9, 12, 0.72);
+}
+
+.tool-tab {
+    border: 1px solid transparent;
+
+    background: transparent;
+
+    color: var(--muted);
+
+    padding: 9px 15px;
+
+    border-radius: 9px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.tool-tab:hover {
+    background: var(--panel-hover);
+    color: var(--text);
+}
+
+.tool-tab.active {
+    background: var(--panel);
+    border-color: var(--border);
+    color: var(--text);
+}
+
+
+/* ---------- MAIN ---------- */
+
+main {
+    width: min(1400px, 88%);
+
+    margin: 70px auto;
+}
+
+.hero {
+    margin-bottom: 35px;
+}
+
+.hero h2 {
+    font-size: clamp(32px, 5vw, 52px);
+
+    letter-spacing: -2px;
+
+    line-height: 1.05;
+}
+
+.hero span {
+    background:
+        linear-gradient(
+            90deg,
+            #ffffff,
+            #8793ff
+        );
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+    margin-top: 15px;
+
+    color: var(--muted);
+
+    font-size: 16px;
+}
+
+
+/* ---------- EDITORS ---------- */
+
+.editor-container {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 18px;
+}
+
+.editor {
+    background: rgba(16, 18, 24, 0.86);
+
+    border: 1px solid var(--border);
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.25);
+
+    transition:
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.editor:focus-within {
+    border-color: rgba(109, 124, 255, 0.6);
+}
+
+.editor-header {
+    height: 48px;
+
+    padding: 0 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.editor-header span:first-child {
+    color: var(--text);
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status {
+    color: var(--success);
+
+    font-size: 12px;
+}
+
+textarea {
+    width: 100%;
+
+    height: 420px;
+
+    padding: 20px;
+
+    resize: vertical;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    color: #dce2ed;
+
+    font-family:
+        "JetBrains Mono",
+        "Cascadia Code",
+        Consolas,
+        monospace;
+
+    font-size: 14px;
+
+    line-height: 1.7;
+}
+
+textarea::placeholder {
+    color: #555d6d;
+}
+
+
+/* ---------- CONTROLS ---------- */
+
+.controls {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: 20px;
+}
+
+.button-group {
+    display: flex;
+
+    gap: 10px;
+}
+
+button {
+    border: 1px solid var(--border);
+
+    background: var(--panel);
+
+    color: var(--text);
+
+    padding: 11px 18px;
+
+    border-radius: 10px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+}
+
+button:hover {
+    background: var(--panel-hover);
+
+    border-color: #353b49;
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+.primary {
+    border-color: transparent;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent),
+            #8b6dff
+        );
+
+    box-shadow:
+        0 8px 25px rgba(109, 124, 255, 0.2);
+}
+
+.primary:hover {
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent-hover),
+            #997eff
+        );
+}
+
+
+/* ---------- DIAGNOSTICS ---------- */
+
+.diagnostics {
+    display: flex;
+
+    align-items: center;
+
+    gap: 0;
+
+    margin-top: 14px;
+
+    background: rgba(16, 18, 24, 0.75);
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    overflow: hidden;
+}
+
+.diagnostic-item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 12px 18px;
+
+    border-right: 1px solid var(--border);
+}
+
+.diagnostic-item:last-child {
+    border-right: none;
+}
+
+.diagnostic-label {
+    color: #666f80;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.8px;
+}
+
+.diagnostic-value {
+    color: var(--text);
+
+    font-size: 12px;
+
+    font-family:
+        "JetBrains Mono",
+        "Cascadia Code",
+        Consolas,
+        monospace;
+}
+
+.diagnostic-valid {
+    color: var(--success);
+}
+
+.diagnostic-invalid {
+    color: #ff6b7a;
+}
+
+
+/* ---------- ERROR PANEL ---------- */
+
+.error-panel {
+    display: none;
+
+    margin: 0 14px 14px;
+
+    padding: 12px 14px;
+
+    border: 1px solid rgba(255, 90, 110, 0.3);
+
+    border-radius: 10px;
+
+    background: rgba(255, 70, 90, 0.06);
+}
+
+.error-title {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    color: #ff7180;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.error-message {
+    margin-top: 6px;
+
+    color: #aeb5c2;
+
+    font-size: 12px;
+
+    font-family:
+        "JetBrains Mono",
+        "Cascadia Code",
+        Consolas,
+        monospace;
+
+    line-height: 1.5;
+}
+
+
+/* ---------- SUCCESS PANEL ---------- */
+
+.success-panel {
+    display: none;
+
+    margin: 0 14px 14px;
+
+    padding: 12px 14px;
+
+    border: 1px solid rgba(53, 211, 154, 0.3);
+
+    border-radius: 10px;
+
+    background: rgba(53, 211, 154, 0.06);
+}
+
+.success-title {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    color: var(--success);
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.success-message {
+    margin-top: 6px;
+
+    color: #aeb5c2;
+
+    font-size: 12px;
+
+    font-family:
+        "JetBrains Mono",
+        "Cascadia Code",
+        Consolas,
+        monospace;
+
+    line-height: 1.5;
+}
+
+
+/* ---------- CSV TOOL ---------- */
+
+.csv-tool {
+    display: none;
+}
+
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 900px) {
+
+    main {
+        width: 92%;
+
+        margin: 45px auto;
+    }
+
+    .editor-container {
+        grid-template-columns: 1fr;
+    }
+
+    textarea {
+        height: 320px;
+    }
+
+    .controls {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 12px;
+    }
+
+    .button-group {
+        width: 100%;
+    }
+
+    button {
+        flex: 1;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .diagnostics {
+        flex-wrap: wrap;
+    }
+
+    .diagnostic-item {
+        flex: 1;
+
+        min-width: 50%;
+    }
+}
+
+
+@media (max-width: 520px) {
+
+    header {
+        padding: 22px 5%;
+    }
+
+    .tool-nav {
+        padding: 12px 5%;
+    }
+
+    main {
+        width: 94%;
+    }
+
+    .hero h2 {
+        font-size: 34px;
+    }
+
+    .diagnostic-item {
+        min-width: 100%;
+    }
+
+    .button-group {
+        flex-wrap: wrap;
+    }
+
+    button {
+        min-width: 45%;
+    }
+}

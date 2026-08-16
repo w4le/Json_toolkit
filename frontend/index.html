@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>JSON Toolkit</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="logo">
+
+        <div class="logo-mark">
+            J
+        </div>
+
+        <div>
+
+            <h1>
+                JSON Toolkit
+            </h1>
+
+            <p>
+                Developer utilities, simplified.
+            </p>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<nav class="tool-nav">
+
+    <button
+        class="tool-tab active"
+        id="formatterTab"
+        type="button"
+    >
+        JSON Formatter
+    </button>
+
+
+    <button
+        class="tool-tab"
+        id="csvTab"
+        type="button"
+    >
+        JSON → CSV
+    </button>
+
+</nav>
+
+
+<main>
+
+
+    <!-- =====================================================
+         JSON FORMATTER
+         ===================================================== -->
+
+    <div id="formatterTool">
+
+
+        <section class="hero">
+
+            <h2>
+
+                JSON tools built for
+                <span>developers.</span>
+
+            </h2>
+
+
+            <p>
+
+                Format, validate and transform JSON instantly.
+                Fast, private and simple.
+
+            </p>
+
+        </section>
+
+
+        <section class="editor-container">
+
+
+            <!-- INPUT -->
+
+            <div class="editor">
+
+
+                <div class="editor-header">
+
+                    <span>
+                        INPUT JSON
+                    </span>
+
+
+                    <span
+                        id="inputStatus"
+                        class="status"
+                    >
+                        Ready
+                    </span>
+
+                </div>
+
+
+                <textarea
+                    id="jsonInput"
+                    spellcheck="false"
+                    placeholder='Paste your JSON here...
+
+Example:
+{"name":"John","age":25}'
+                ></textarea>
+
+
+                <div
+                    id="errorPanel"
+                    class="error-panel"
+                >
+
+                    <div class="error-title">
+
+                        <span>
+                            ⚠
+                        </span>
+
+                        <span>
+                            Invalid JSON
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="errorMessage"
+                        class="error-message"
+                    >
+                        Your JSON contains an error.
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- OUTPUT -->
+
+            <div class="editor">
+
+
+                <div class="editor-header">
+
+                    <span>
+                        FORMATTED JSON
+                    </span>
+
+
+                    <span
+                        id="outputStatus"
+                        class="status"
+                    >
+                        Waiting
+                    </span>
+
+                </div>
+
+
+                <textarea
+                    id="jsonOutput"
+                    spellcheck="false"
+                    readonly
+                    placeholder="Formatted JSON will appear here..."
+                ></textarea>
+
+
+                <!-- JSON SUCCESS -->
+
+                <div
+                    id="successPanel"
+                    class="success-panel"
+                >
+
+                    <div class="success-title">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Copied
+                        </span>
+
+                    </div>
+
+
+                    <div class="success-message">
+
+                        JSON copied to clipboard successfully.
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- DIAGNOSTICS -->
+
+        <section class="diagnostics">
+
+
+            <div class="diagnostic-item">
+
+                <span class="diagnostic-label">
+                    STATUS
+                </span>
+
+
+                <span
+                    id="diagnosticStatus"
+                    class="diagnostic-value"
+                >
+                    Waiting
+                </span>
+
+            </div>
+
+
+            <div class="diagnostic-item">
+
+                <span class="diagnostic-label">
+                    KEYS
+                </span>
+
+
+                <span
+                    id="keyCount"
+                    class="diagnostic-value"
+                >
+                    —
+                </span>
+
+            </div>
+
+
+            <div class="diagnostic-item">
+
+                <span class="diagnostic-label">
+                    ARRAYS
+                </span>
+
+
+                <span
+                    id="arrayCount"
+                    class="diagnostic-value"
+                >
+                    —
+                </span>
+
+            </div>
+
+
+            <div class="diagnostic-item">
+
+                <span class="diagnostic-label">
+                    SIZE
+                </span>
+
+
+                <span
+                    id="jsonSize"
+                    class="diagnostic-value"
+                >
+                    —
+                </span>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- FORMATTER CONTROLS -->
+
+        <section class="controls">
+
+            <div class="button-group">
+
+
+                <button
+                    id="formatButton"
+                    class="primary"
+                    type="button"
+                >
+                    Format JSON
+                </button>
+
+
+                <button
+                    id="minifyButton"
+                    type="button"
+                >
+                    Minify
+                </button>
+
+
+                <button
+                    id="copyButton"
+                    type="button"
+                >
+                    Copy
+                </button>
+
+
+                <button
+                    id="downloadButton"
+                    type="button"
+                >
+                    Download
+                </button>
+
+
+                <button
+                    id="clearButton"
+                    type="button"
+                >
+                    Clear
+                </button>
+
+
+            </div>
+
+        </section>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         JSON → CSV
+         ===================================================== -->
+
+    <section
+        id="csvTool"
+        class="csv-tool"
+        style="display: none;"
+    >
+
+
+        <section class="hero">
+
+            <h2>
+
+                JSON
+                <span>→ CSV</span>
+
+            </h2>
+
+
+            <p>
+
+                Convert JSON arrays into clean CSV data.
+                Fast and simple.
+
+            </p>
+
+        </section>
+
+
+        <section class="editor-container">
+
+
+            <!-- CSV INPUT -->
+
+            <div class="editor">
+
+
+                <div class="editor-header">
+
+                    <span>
+                        INPUT JSON
+                    </span>
+
+
+                    <span
+                        id="csvInputStatus"
+                        class="status"
+                    >
+                        Ready
+                    </span>
+
+                </div>
+
+
+                <textarea
+                    id="csvJsonInput"
+                    spellcheck="false"
+                    placeholder='Paste an array of JSON objects here...
+
+Example:
+[
+  {"name":"John","age":25},
+  {"name":"Sarah","age":30}
+]'
+                ></textarea>
+
+
+            </div>
+
+
+            <!-- CSV OUTPUT -->
+
+            <div class="editor">
+
+
+                <div class="editor-header">
+
+                    <span>
+                        CSV OUTPUT
+                    </span>
+
+
+                    <span
+                        id="csvOutputStatus"
+                        class="status"
+                    >
+                        Waiting
+                    </span>
+
+                </div>
+
+
+                <textarea
+                    id="csvOutput"
+                    spellcheck="false"
+                    readonly
+                    placeholder="CSV output will appear here..."
+                ></textarea>
+
+
+                <!-- CSV SUCCESS -->
+
+                <div
+                    id="csvSuccessPanel"
+                    class="success-panel"
+                >
+
+                    <div class="success-title">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Copied
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="csvSuccessMessage"
+                        class="success-message"
+                    >
+
+                        CSV copied to clipboard successfully.
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- CSV CONTROLS -->
+
+        <section class="controls">
+
+            <div class="button-group">
+
+
+                <button
+                    id="convertCsvButton"
+                    class="primary"
+                    type="button"
+                >
+                    Convert to CSV
+                </button>
+
+
+                <button
+                    id="copyCsvButton"
+                    type="button"
+                >
+                    Copy
+                </button>
+
+
+                <button
+                    id="downloadCsvButton"
+                    type="button"
+                >
+                    Download CSV
+                </button>
+
+
+                <button
+                    id="clearCsvButton"
+                    type="button"
+                >
+                    Clear
+                </button>
+
+
+            </div>
+
+        </section>
+
+
+    </section>
+
+
+</main>
+
+
+<script src="/static/script.js"></script>
+
+
+</body>
+
+</html>
