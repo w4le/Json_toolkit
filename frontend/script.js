@@ -1059,3 +1059,616 @@ csvJsonInput.addEventListener(
 
     }
 );
+/* =====================================================
+   JSON DIFF
+   ===================================================== */
+
+const diffTab = document.getElementById("diffTab");
+const diffTool = document.getElementById("diffTool");
+
+const diffInputA = document.getElementById("diffInputA");
+const diffInputB = document.getElementById("diffInputB");
+
+const diffAStatus = document.getElementById("diffAStatus");
+const diffBStatus = document.getElementById("diffBStatus");
+
+const compareButton = document.getElementById("compareButton");
+const clearDiffButton = document.getElementById("clearDiffButton");
+
+const diffOutput = document.getElementById("diffOutput");
+const diffCount = document.getElementById("diffCount");
+
+
+/* ---------- SWITCH TO DIFF ---------- */
+
+if (diffTab) {
+
+    diffTab.addEventListener("click", () => {
+
+        /*
+         * Use the existing tool-switching system first.
+         * This prevents the formatter and CSV tools
+         * from remaining visible underneath Diff.
+         */
+
+        document
+            .querySelectorAll(".tool-tab")
+            .forEach(tab => {
+                tab.classList.remove("active");
+            });
+
+        diffTab.classList.add("active");
+
+
+        /*
+         * Hide the existing tools.
+         */
+
+        const formatterTool =
+            document.getElementById("formatterTool");
+
+        const csvTool =
+            document.getElementById("csvTool");
+
+
+        if (formatterTool) {
+            formatterTool.style.display = "none";
+        }
+
+        if (csvTool) {
+            csvTool.style.display = "none";
+        }
+
+
+        /*
+         * Show Diff.
+         */
+
+        if (diffTool) {
+            diffTool.style.display = "block";
+        }
+
+    });
+
+}
+
+
+/* ---------- VALUE FORMATTER ---------- */
+
+function formatDiffValue(value) {
+
+    if (typeof value === "string") {
+        return `"${value}"`;
+    }
+
+    if (value === null) {
+        return "null";
+    }
+
+    if (typeof value === "object") {
+        return JSON.stringify(value);
+    }
+
+    return String(value);
+}
+
+
+/* ---------- PATH FORMATTER ---------- */
+
+function formatDiffPath(path) {
+
+    if (!path.length) {
+        return "Root";
+    }
+
+    return path
+        .map(part => {
+
+            if (typeof part === "number") {
+                return `[${part}]`;
+            }
+
+            return part;
+
+        })
+        .join(".");
+}
+
+
+/* ---------- COMPARE VALUES ---------- */
+
+function compareJSONValues(
+    valueA,
+    valueB,
+    path = [],
+    differences = []
+) {
+
+    /*
+     * If both values are objects, compare their keys.
+     */
+
+    if (
+        valueA !== null &&
+        valueB !== null &&
+        typeof valueA === "object" &&
+        typeof valueB === "object"
+    ) {
+
+        /*
+         * Arrays
+         */
+
+        if (
+            Array.isArray(valueA) ||
+            Array.isArray(valueB)
+        ) {
+
+            if (
+                !Array.isArray(valueA) ||
+                !Array.isArray(valueB)
+            ) {
+
+                differences.push({
+                    type: "changed",
+                    path: formatDiffPath(path),
+                    oldValue: valueA,
+                    newValue: valueB
+                });
+
+                return differences;
+            }
+
+
+            const maxLength = Math.max(
+                valueA.length,
+                valueB.length
+            );
+
+
+            for (let i = 0; i < maxLength; i++) {
+
+                const currentPath = [
+                    ...path,
+                    i
+                ];
+
+
+                if (i >= valueA.length) {
+
+                    differences.push({
+                        type: "added",
+                        path: formatDiffPath(currentPath),
+                        newValue: valueB[i]
+                    });
+
+                    continue;
+                }
+
+
+                if (i >= valueB.length) {
+
+                    differences.push({
+                        type: "removed",
+                        path: formatDiffPath(currentPath),
+                        oldValue: valueA[i]
+                    });
+
+                    continue;
+                }
+
+
+                compareJSONValues(
+                    valueA[i],
+                    valueB[i],
+                    currentPath,
+                    differences
+                );
+
+            }
+
+            return differences;
+        }
+
+
+        /*
+         * Regular objects
+         */
+
+        const keysA = Object.keys(valueA);
+        const keysB = Object.keys(valueB);
+
+        const allKeys = new Set([
+            ...keysA,
+            ...keysB
+        ]);
+
+
+        for (const key of allKeys) {
+
+            const currentPath = [
+                ...path,
+                key
+            ];
+
+
+            if (!Object.prototype.hasOwnProperty.call(valueA, key)) {
+
+                differences.push({
+                    type: "added",
+                    path: formatDiffPath(currentPath),
+                    newValue: valueB[key]
+                });
+
+                continue;
+            }
+
+
+            if (!Object.prototype.hasOwnProperty.call(valueB, key)) {
+
+                differences.push({
+                    type: "removed",
+                    path: formatDiffPath(currentPath),
+                    oldValue: valueA[key]
+                });
+
+                continue;
+            }
+
+
+            compareJSONValues(
+                valueA[key],
+                valueB[key],
+                currentPath,
+                differences
+            );
+
+        }
+
+        return differences;
+    }
+
+
+    /*
+     * Primitive values.
+     */
+
+    if (JSON.stringify(valueA) !== JSON.stringify(valueB)) {
+
+        differences.push({
+            type: "changed",
+            path: formatDiffPath(path),
+            oldValue: valueA,
+            newValue: valueB
+        });
+
+    }
+
+
+    return differences;
+}
+
+
+/* ---------- DISPLAY DIFFERENCES ---------- */
+
+function displayDifferences(differences) {
+
+    diffOutput.innerHTML = "";
+
+
+    if (differences.length === 0) {
+
+        diffCount.textContent = "No changes";
+
+        diffCount.className =
+            "status diagnostic-valid";
+
+        const message =
+            document.createElement("div");
+
+        message.className =
+            "diff-empty";
+
+        message.textContent =
+            "✓ The JSON documents are identical.";
+
+        diffOutput.appendChild(message);
+
+        return;
+    }
+
+
+    diffCount.textContent =
+        `${differences.length} change${
+            differences.length === 1 ? "" : "s"
+        }`;
+
+
+    diffCount.className =
+        "status diff-change";
+
+
+    differences.forEach(difference => {
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "diff-item";
+
+
+        const path =
+            document.createElement("div");
+
+        path.className =
+            "diff-path";
+
+        path.textContent =
+            difference.path;
+
+
+        item.appendChild(path);
+
+
+        if (difference.type === "changed") {
+
+            const oldValue =
+                document.createElement("div");
+
+            oldValue.className =
+                "diff-old";
+
+            oldValue.textContent =
+                `− ${formatDiffValue(
+                    difference.oldValue
+                )}`;
+
+
+            const newValue =
+                document.createElement("div");
+
+            newValue.className =
+                "diff-new";
+
+            newValue.textContent =
+                `+ ${formatDiffValue(
+                    difference.newValue
+                )}`;
+
+
+            item.appendChild(oldValue);
+            item.appendChild(newValue);
+
+        }
+
+
+        if (difference.type === "added") {
+
+            const added =
+                document.createElement("div");
+
+            added.className =
+                "diff-added";
+
+            added.textContent =
+                `+ Added: ${formatDiffValue(
+                    difference.newValue
+                )}`;
+
+
+            item.appendChild(added);
+
+        }
+
+
+        if (difference.type === "removed") {
+
+            const removed =
+                document.createElement("div");
+
+            removed.className =
+                "diff-removed";
+
+            removed.textContent =
+                `− Removed: ${formatDiffValue(
+                    difference.oldValue
+                )}`;
+
+
+            item.appendChild(removed);
+
+        }
+
+
+        diffOutput.appendChild(item);
+
+    });
+
+}
+
+
+/* ---------- COMPARE BUTTON ---------- */
+
+if (compareButton) {
+
+    compareButton.addEventListener(
+        "click",
+        () => {
+
+            const rawA =
+                diffInputA.value.trim();
+
+            const rawB =
+                diffInputB.value.trim();
+
+
+            if (!rawA || !rawB) {
+
+                diffOutput.innerHTML = "";
+
+                const error =
+                    document.createElement("div");
+
+                error.className =
+                    "diff-error";
+
+                error.textContent =
+                    "Please provide JSON in both fields.";
+
+                diffOutput.appendChild(error);
+
+                diffCount.textContent =
+                    "Missing JSON";
+
+                diffCount.className =
+                    "status diff-change";
+
+                return;
+            }
+
+
+            let jsonA;
+            let jsonB;
+
+
+            try {
+
+                jsonA =
+                    JSON.parse(rawA);
+
+                diffAStatus.textContent =
+                    "Valid";
+
+                diffAStatus.className =
+                    "status diagnostic-valid";
+
+            } catch (error) {
+
+                diffAStatus.textContent =
+                    "Invalid";
+
+                diffAStatus.className =
+                    "status diagnostic-invalid";
+
+
+                diffOutput.innerHTML = "";
+
+                const message =
+                    document.createElement("div");
+
+                message.className =
+                    "diff-error";
+
+                message.textContent =
+                    "JSON A is invalid. Please check its syntax.";
+
+                diffOutput.appendChild(message);
+
+                diffCount.textContent =
+                    "Invalid JSON";
+
+                diffCount.className =
+                    "status diff-change";
+
+                return;
+            }
+
+
+            try {
+
+                jsonB =
+                    JSON.parse(rawB);
+
+                diffBStatus.textContent =
+                    "Valid";
+
+                diffBStatus.className =
+                    "status diagnostic-valid";
+
+            } catch (error) {
+
+                diffBStatus.textContent =
+                    "Invalid";
+
+                diffBStatus.className =
+                    "status diagnostic-invalid";
+
+
+                diffOutput.innerHTML = "";
+
+                const message =
+                    document.createElement("div");
+
+                message.className =
+                    "diff-error";
+
+                message.textContent =
+                    "JSON B is invalid. Please check its syntax.";
+
+                diffOutput.appendChild(message);
+
+                diffCount.textContent =
+                    "Invalid JSON";
+
+                diffCount.className =
+                    "status diff-change";
+
+                return;
+            }
+
+
+            const differences =
+                compareJSONValues(
+                    jsonA,
+                    jsonB
+                );
+
+
+            displayDifferences(
+                differences
+            );
+
+        }
+    );
+
+}
+
+
+/* ---------- CLEAR DIFF ---------- */
+
+if (clearDiffButton) {
+
+    clearDiffButton.addEventListener(
+        "click",
+        () => {
+
+            diffInputA.value = "";
+            diffInputB.value = "";
+
+            diffAStatus.textContent =
+                "Ready";
+
+            diffBStatus.textContent =
+                "Ready";
+
+            diffAStatus.className =
+                "status";
+
+            diffBStatus.className =
+                "status";
+
+
+            diffOutput.innerHTML =
+                "Compare two JSON documents to see their differences.";
+
+
+            diffCount.textContent =
+                "Waiting";
+
+            diffCount.className =
+                "status";
+
+        }
+    );
+
+}

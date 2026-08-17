@@ -591,3 +591,135 @@ button:active {
         min-width: 45%;
     }
 }
+/* ---------- JSON DIFF ---------- */
+
+.diff-tool {
+    margin-top: 10px;
+}
+
+.diff-result {
+    margin-top: 20px;
+
+    background: rgba(16, 18, 24, 0.86);
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.diff-result-header {
+    min-height: 48px;
+
+    padding: 0 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.diff-result-header span:first-child {
+    color: var(--text);
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.diff-output {
+    padding: 20px;
+
+    color: #cdd3df;
+
+    font-family:
+        "JetBrains Mono",
+        "Cascadia Code",
+        Consolas,
+        monospace;
+
+    font-size: 13px;
+    line-height: 1.7;
+
+    min-height: 100px;
+}
+
+.diff-item {
+    padding: 12px 14px;
+
+    margin-bottom: 8px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    background: rgba(8, 9, 12, 0.45);
+}
+
+.diff-item:last-child {
+    margin-bottom: 0;
+}
+
+.diff-path {
+    margin-bottom: 5px;
+
+    color: var(--text);
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.diff-change {
+    color: #ff7180;
+}
+
+.diff-added {
+    color: var(--success);
+}
+
+.diff-removed {
+    color: #ff7180;
+}
+
+.diff-old {
+    color: #ff7180;
+}
+
+.diff-new {
+    color: var(--success);
+}
+
+.diff-empty {
+    color: var(--success);
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.diff-error {
+    color: #ff7180;
+
+    font-size: 13px;
+}
+
+
+/* ---------- DIFF RESPONSIVE ---------- */
+
+@media (max-width: 900px) {
+
+    .diff-tool .editor-container {
+        grid-template-columns: 1fr;
+    }
+
+    .diff-result-header {
+        gap: 10px;
+    }
+
+    .diff-output {
+        padding: 14px;
+    }
+
+}

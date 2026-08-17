@@ -8,7 +8,7 @@ import io
 
 app = FastAPI()
 
-# Serve the frontend files
+# Serve the frontendbackup files
 app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
 
