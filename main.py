@@ -24,6 +24,10 @@ def home():
 def robots():
     return FileResponse("frontend/robots.txt", media_type="text/plain")
 
+@app.get("/sitemap.xml")
+def sitemap():
+    return FileResponse("frontend/sitemap.xml", media_type="application/xml")
+
 
 @app.post("/format")
 def format_json(request: JSONRequest):
