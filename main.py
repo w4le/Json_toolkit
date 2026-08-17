@@ -20,6 +20,10 @@ class JSONRequest(BaseModel):
 def home():
     return FileResponse("frontend/index.html")
 
+@app.get("/robots.txt")
+def robots():
+    return FileResponse("frontend/robots.txt", media_type="text/plain")
+
 
 @app.post("/format")
 def format_json(request: JSONRequest):
