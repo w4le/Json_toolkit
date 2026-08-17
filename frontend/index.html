@@ -81,6 +81,13 @@
         JSON Formatter
     </button>
 
+    <button
+    class="tool-tab"
+    id="diffTab"
+    type="button"
+    >
+    JSON Diff
+</button>
 
     <button
         class="tool-tab"
@@ -572,6 +579,145 @@ Example:
 
 
     </section>
+    <!-- =====================================================
+     JSON DIFF
+     ===================================================== -->
+
+<section
+    id="diffTool"
+    class="diff-tool"
+    style="display: none;"
+>
+
+    <section class="hero">
+
+        <h2>
+            Compare
+            <span>JSON.</span>
+        </h2>
+
+        <p>
+            Compare two JSON documents and see exactly what changed.
+        </p>
+
+    </section>
+
+
+    <section class="editor-container">
+
+        <!-- JSON A -->
+
+        <div class="editor">
+
+            <div class="editor-header">
+
+                <span>
+                    JSON A
+                </span>
+
+                <span
+                    id="diffAStatus"
+                    class="status"
+                >
+                    Ready
+                </span>
+
+            </div>
+
+            <textarea
+                id="diffInputA"
+                spellcheck="false"
+                placeholder='Paste your first JSON here...'
+            ></textarea>
+
+        </div>
+
+
+        <!-- JSON B -->
+
+        <div class="editor">
+
+            <div class="editor-header">
+
+                <span>
+                    JSON B
+                </span>
+
+                <span
+                    id="diffBStatus"
+                    class="status"
+                >
+                    Ready
+                </span>
+
+            </div>
+
+            <textarea
+                id="diffInputB"
+                spellcheck="false"
+                placeholder='Paste your second JSON here...'
+            ></textarea>
+
+        </div>
+
+    </section>
+
+
+    <section class="controls">
+
+        <div class="button-group">
+
+            <button
+                id="compareButton"
+                class="primary"
+                type="button"
+            >
+                Compare JSON
+            </button>
+
+            <button
+                id="clearDiffButton"
+                type="button"
+            >
+                Clear
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <section
+        id="diffResult"
+        class="diff-result"
+    >
+
+        <div class="diff-result-header">
+
+            <span>
+                DIFF RESULTS
+            </span>
+
+            <span
+                id="diffCount"
+                class="status"
+            >
+                Waiting
+            </span>
+
+        </div>
+
+
+        <div
+            id="diffOutput"
+            class="diff-output"
+        >
+            Compare two JSON documents to see their differences.
+        </div>
+
+    </section>
+
+</section>
 
 
 </main>
