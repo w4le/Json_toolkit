@@ -1,15 +1,44 @@
-"use strict";
+const formatterTab =
+    document.getElementById("formatterTab");
 
-// ============================================================
-// JSON FORMATTER
-// ============================================================
+const csvTab =
+    document.getElementById("csvTab");
+
+const diffTab =
+    document.getElementById("diffTab");
+
+const batchTab =
+    document.getElementById("batchTab");
+
+const schemaTab =
+    document.getElementById("schemaTab");
+
+
+const formatterTool =
+    document.getElementById("formatterTool");
+
+const csvTool =
+    document.getElementById("csvTool");
+
+const diffTool =
+    document.getElementById("diffTool");
+
+const batchTool =
+    document.getElementById("batchTool");
+
+const schemaTool =
+    document.getElementById("schemaTool");
+
+
+/* =====================================================
+   JSON FORMATTER
+   ===================================================== */
 
 const jsonInput =
     document.getElementById("jsonInput");
 
 const jsonOutput =
     document.getElementById("jsonOutput");
-
 
 const formatButton =
     document.getElementById("formatButton");
@@ -26,13 +55,20 @@ const downloadButton =
 const clearButton =
     document.getElementById("clearButton");
 
-
 const inputStatus =
     document.getElementById("inputStatus");
 
 const outputStatus =
     document.getElementById("outputStatus");
 
+const errorPanel =
+    document.getElementById("errorPanel");
+
+const errorMessage =
+    document.getElementById("errorMessage");
+
+const successPanel =
+    document.getElementById("successPanel");
 
 const diagnosticStatus =
     document.getElementById("diagnosticStatus");
@@ -47,27 +83,447 @@ const jsonSize =
     document.getElementById("jsonSize");
 
 
-const errorPanel =
-    document.getElementById("errorPanel");
+/* ---------- FORMATTER TAB ---------- */
 
-const errorMessage =
-    document.getElementById("errorMessage");
+if (formatterTab) {
+
+    formatterTab.addEventListener(
+        "click",
+        () => {
+
+            document
+                .querySelectorAll(".tool-tab")
+                .forEach(tab => {
+                    tab.classList.remove("active");
+                });
+
+            formatterTab.classList.add("active");
 
 
-const successPanel =
-    document.getElementById("successPanel");
+            if (formatterTool) {
+                formatterTool.style.display = "block";
+            }
+
+            if (csvTool) {
+                csvTool.style.display = "none";
+            }
+
+            if (diffTool) {
+                diffTool.style.display = "none";
+            }
+
+            if (batchTool) {
+                batchTool.style.display = "none";
+            }
+
+            if (schemaTool) {
+                schemaTool.style.display = "none";
+            }
+
+        }
+    );
+
+}
 
 
-// ============================================================
-// CSV
-// ============================================================
+/* ---------- UPDATE DIAGNOSTICS ---------- */
+
+function updateDiagnostics(json) {
+
+    let keys = 0;
+    let arrays = 0;
+
+
+    function walk(value) {
+
+        if (Array.isArray(value)) {
+
+            arrays++;
+
+            value.forEach(item => {
+                walk(item);
+            });
+
+            return;
+        }
+
+
+        if (
+            value !== null &&
+            typeof value === "object"
+        ) {
+
+            keys +=
+                Object.keys(value).length;
+
+
+            Object.values(value)
+                .forEach(item => {
+                    walk(item);
+                });
+
+        }
+
+    }
+
+
+    walk(json);
+
+
+    if (keyCount) {
+        keyCount.textContent =
+            keys;
+    }
+
+    if (arrayCount) {
+        arrayCount.textContent =
+            arrays;
+    }
+
+}
+
+
+/* ---------- FORMAT JSON ---------- */
+
+if (formatButton) {
+
+    formatButton.addEventListener(
+        "click",
+        () => {
+
+            const raw =
+                jsonInput.value.trim();
+
+
+            if (!raw) {
+
+                inputStatus.textContent =
+                    "Empty";
+
+                outputStatus.textContent =
+                    "Waiting";
+
+                return;
+
+            }
+
+
+            try {
+
+                const json =
+                    JSON.parse(raw);
+
+
+                jsonOutput.value =
+                    JSON.stringify(
+                        json,
+                        null,
+                        2
+                    );
+
+
+                inputStatus.textContent =
+                    "Valid";
+
+                outputStatus.textContent =
+                    "Formatted";
+
+
+                if (diagnosticStatus) {
+                    diagnosticStatus.textContent =
+                        "Valid JSON";
+                }
+
+
+                updateDiagnostics(json);
+
+
+                if (jsonSize) {
+
+                    jsonSize.textContent =
+                        `${new Blob([raw]).size} bytes`;
+
+                }
+
+
+                if (errorPanel) {
+                    errorPanel.style.display =
+                        "none";
+                }
+
+            } catch (error) {
+
+                inputStatus.textContent =
+                    "Invalid";
+
+                outputStatus.textContent =
+                    "Error";
+
+
+                if (diagnosticStatus) {
+                    diagnosticStatus.textContent =
+                        "Invalid JSON";
+                }
+
+
+                if (errorPanel) {
+
+                    errorPanel.style.display =
+                        "block";
+
+                }
+
+
+                if (errorMessage) {
+
+                    errorMessage.textContent =
+                        error.message;
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ---------- MINIFY ---------- */
+
+if (minifyButton) {
+
+    minifyButton.addEventListener(
+        "click",
+        () => {
+
+            const raw =
+                jsonInput.value.trim();
+
+
+            if (!raw) {
+                return;
+            }
+
+
+            try {
+
+                const json =
+                    JSON.parse(raw);
+
+
+                jsonOutput.value =
+                    JSON.stringify(json);
+
+
+                inputStatus.textContent =
+                    "Valid";
+
+                outputStatus.textContent =
+                    "Minified";
+
+
+                if (errorPanel) {
+                    errorPanel.style.display =
+                        "none";
+                }
+
+            } catch (error) {
+
+                inputStatus.textContent =
+                    "Invalid";
+
+                outputStatus.textContent =
+                    "Error";
+
+
+                if (errorPanel) {
+                    errorPanel.style.display =
+                        "block";
+                }
+
+
+                if (errorMessage) {
+                    errorMessage.textContent =
+                        error.message;
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ---------- COPY ---------- */
+
+if (copyButton) {
+
+    copyButton.addEventListener(
+        "click",
+        async () => {
+
+            const output =
+                jsonOutput.value;
+
+
+            if (!output) {
+                return;
+            }
+
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    output
+                );
+
+
+                if (successPanel) {
+                    successPanel.style.display =
+                        "block";
+                }
+
+
+                outputStatus.textContent =
+                    "Copied";
+
+
+            } catch (error) {
+
+                outputStatus.textContent =
+                    "Copy failed";
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ---------- DOWNLOAD ---------- */
+
+if (downloadButton) {
+
+    downloadButton.addEventListener(
+        "click",
+        () => {
+
+            const output =
+                jsonOutput.value;
+
+
+            if (!output) {
+                return;
+            }
+
+
+            const blob =
+                new Blob(
+                    [output],
+                    {
+                        type:
+                            "application/json"
+                    }
+                );
+
+
+            const url =
+                URL.createObjectURL(blob);
+
+
+            const link =
+                document.createElement("a");
+
+
+            link.href = url;
+
+            link.download =
+                "formatted.json";
+
+
+            document.body.appendChild(link);
+
+            link.click();
+
+            link.remove();
+
+            URL.revokeObjectURL(url);
+
+        }
+    );
+
+}
+
+
+/* ---------- CLEAR FORMATTER ---------- */
+
+if (clearButton) {
+
+    clearButton.addEventListener(
+        "click",
+        () => {
+
+            jsonInput.value = "";
+
+            jsonOutput.value = "";
+
+
+            inputStatus.textContent =
+                "Ready";
+
+            outputStatus.textContent =
+                "Waiting";
+
+
+            if (errorPanel) {
+                errorPanel.style.display =
+                    "none";
+            }
+
+            if (successPanel) {
+                successPanel.style.display =
+                    "none";
+            }
+
+
+            if (diagnosticStatus) {
+                diagnosticStatus.textContent =
+                    "Waiting";
+            }
+
+            if (keyCount) {
+                keyCount.textContent =
+                    "—";
+            }
+
+            if (arrayCount) {
+                arrayCount.textContent =
+                    "—";
+            }
+
+            if (jsonSize) {
+                jsonSize.textContent =
+                    "—";
+            }
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   JSON → CSV
+   ===================================================== */
 
 const csvJsonInput =
     document.getElementById("csvJsonInput");
 
 const csvOutput =
     document.getElementById("csvOutput");
-
 
 const convertCsvButton =
     document.getElementById("convertCsvButton");
@@ -81,1306 +537,702 @@ const downloadCsvButton =
 const clearCsvButton =
     document.getElementById("clearCsvButton");
 
-
 const csvInputStatus =
     document.getElementById("csvInputStatus");
 
 const csvOutputStatus =
     document.getElementById("csvOutputStatus");
 
-
 const csvSuccessPanel =
     document.getElementById("csvSuccessPanel");
 
 
-// ============================================================
-// NAVIGATION
-// ============================================================
+/* ---------- CSV TAB ---------- */
 
-const formatterTab =
-    document.getElementById("formatterTab");
+if (csvTab) {
 
-const csvTab =
-    document.getElementById("csvTab");
+    csvTab.addEventListener(
+        "click",
+        () => {
 
-const formatterTool =
-    document.getElementById("formatterTool");
+            document
+                .querySelectorAll(".tool-tab")
+                .forEach(tab => {
+                    tab.classList.remove("active");
+                });
 
-const csvTool =
-    document.getElementById("csvTool");
-
-
-// ============================================================
-// ERROR
-// ============================================================
-
-function showError(message) {
-
-    if (!errorPanel || !errorMessage) {
-        return;
-    }
-
-    errorMessage.textContent =
-        message;
-
-    errorPanel.style.display =
-        "block";
-}
+            csvTab.classList.add("active");
 
 
-function hideError() {
+            if (formatterTool) {
+                formatterTool.style.display =
+                    "none";
+            }
 
-    if (!errorPanel) {
-        return;
-    }
+            if (csvTool) {
+                csvTool.style.display =
+                    "block";
+            }
 
-    errorPanel.style.display =
-        "none";
-}
+            if (diffTool) {
+                diffTool.style.display =
+                    "none";
+            }
 
+            if (batchTool) {
+                batchTool.style.display =
+                    "none";
+            }
 
-// ============================================================
-// SUCCESS NOTIFICATIONS
-// ============================================================
+            if (schemaTool) {
+                schemaTool.style.display =
+                    "none";
+            }
 
-function showJsonSuccess() {
-
-    if (!successPanel) {
-        return;
-    }
-
-    successPanel.style.display =
-        "block";
-
-    clearTimeout(
-        window.jsonSuccessTimer
+        }
     );
 
-    window.jsonSuccessTimer =
-        setTimeout(() => {
-
-            successPanel.style.display =
-                "none";
-
-        }, 5000);
 }
 
 
-function hideJsonSuccess() {
+/* ---------- CONVERT CSV ---------- */
 
-    if (!successPanel) {
-        return;
-    }
+if (convertCsvButton) {
 
-    successPanel.style.display =
-        "none";
-}
+    convertCsvButton.addEventListener(
+        "click",
+        () => {
 
-
-function showCsvSuccess() {
-
-    if (!csvSuccessPanel) {
-        return;
-    }
-
-    csvSuccessPanel.style.display =
-        "block";
-
-    clearTimeout(
-        window.csvSuccessTimer
-    );
-
-    window.csvSuccessTimer =
-        setTimeout(() => {
-
-            csvSuccessPanel.style.display =
-                "none";
-
-        }, 5000);
-}
+            const raw =
+                csvJsonInput.value.trim();
 
 
-function hideCsvSuccess() {
+            if (!raw) {
 
-    if (!csvSuccessPanel) {
-        return;
-    }
+                csvInputStatus.textContent =
+                    "Empty";
 
-    csvSuccessPanel.style.display =
-        "none";
-}
+                return;
 
-
-// ============================================================
-// DIAGNOSTICS
-// ============================================================
-
-function updateDiagnostics(jsonText) {
-
-    try {
-
-        const parsedJSON =
-            JSON.parse(jsonText);
-
-        let keys = 0;
-        let arrays = 0;
+            }
 
 
-        function analyze(value) {
+            try {
 
-            if (Array.isArray(value)) {
+                const json =
+                    JSON.parse(raw);
 
-                arrays++;
+
+                if (
+                    !Array.isArray(json) ||
+                    json.length === 0
+                ) {
+
+                    throw new Error(
+                        "JSON must be an array of objects."
+                    );
+
+                }
 
 
-                value.forEach(item => {
+                const headers =
+                    Array.from(
+                        new Set(
+                            json.flatMap(
+                                item =>
+                                    Object.keys(item)
+                            )
+                        )
+                    );
 
-                    analyze(item);
+
+                const rows =
+                    json.map(item => {
+
+                        return headers.map(
+                            header => {
+
+                                const value =
+                                    item[header];
+
+                                if (
+                                    value === null ||
+                                    value === undefined
+                                ) {
+                                    return "";
+                                }
+
+                                if (
+                                    typeof value ===
+                                    "object"
+                                ) {
+
+                                    return JSON.stringify(
+                                        value
+                                    );
+
+                                }
+
+                                return String(value);
+
+                            }
+                        );
+
+                    });
+
+
+                const csvRows = [];
+
+
+                csvRows.push(
+                    headers.join(",")
+                );
+
+
+                rows.forEach(row => {
+
+                    csvRows.push(
+                        row.map(value => {
+
+                            const escaped =
+                                value.replace(
+                                    /"/g,
+                                    '""'
+                                );
+
+                            return `"${escaped}"`;
+
+                        }).join(",")
+                    );
 
                 });
 
 
+                csvOutput.value =
+                    csvRows.join("\n");
+
+
+                csvInputStatus.textContent =
+                    "Valid";
+
+                csvOutputStatus.textContent =
+                    "Converted";
+
+
+            } catch (error) {
+
+                csvInputStatus.textContent =
+                    "Invalid";
+
+                csvOutputStatus.textContent =
+                    "Error";
+
+                csvOutput.value =
+                    "";
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ---------- COPY CSV ---------- */
+
+if (copyCsvButton) {
+
+    copyCsvButton.addEventListener(
+        "click",
+        async () => {
+
+            const output =
+                csvOutput.value;
+
+
+            if (!output) {
                 return;
             }
 
 
-            if (
-                value !== null &&
-                typeof value === "object"
-            ) {
+            try {
 
-                keys +=
-                    Object.keys(value).length;
+                await navigator.clipboard.writeText(
+                    output
+                );
 
 
-                Object.values(value).forEach(item => {
+                csvOutputStatus.textContent =
+                    "Copied";
 
-                    analyze(item);
 
-                });
+                if (csvSuccessPanel) {
+                    csvSuccessPanel.style.display =
+                        "block";
+                }
+
+            } catch (error) {
+
+                csvOutputStatus.textContent =
+                    "Copy failed";
 
             }
 
         }
-
-
-        analyze(parsedJSON);
-
-
-        const bytes =
-            new Blob([jsonText]).size;
-
-
-        diagnosticStatus.textContent =
-            "Valid JSON";
-
-        diagnosticStatus.className =
-            "diagnostic-value diagnostic-valid";
-
-
-        keyCount.textContent =
-            keys;
-
-        arrayCount.textContent =
-            arrays;
-
-        jsonSize.textContent =
-            formatBytes(bytes);
-
-    }
-
-    catch {
-
-        diagnosticStatus.textContent =
-            "Invalid JSON";
-
-        diagnosticStatus.className =
-            "diagnostic-value diagnostic-invalid";
-
-
-        keyCount.textContent =
-            "—";
-
-        arrayCount.textContent =
-            "—";
-
-        jsonSize.textContent =
-            "—";
-
-    }
+    );
 
 }
 
 
-// ============================================================
-// FORMAT BYTES
-// ============================================================
+/* ---------- DOWNLOAD CSV ---------- */
 
-function formatBytes(bytes) {
+if (downloadCsvButton) {
 
-    if (bytes < 1024) {
+    downloadCsvButton.addEventListener(
+        "click",
+        () => {
 
-        return `${bytes} B`;
-
-    }
-
-
-    if (bytes < 1024 * 1024) {
-
-        return `${(
-            bytes / 1024
-        ).toFixed(1)} KB`;
-
-    }
+            const output =
+                csvOutput.value;
 
 
-    return `${(
-        bytes / (1024 * 1024)
-    ).toFixed(1)} MB`;
-
-}
+            if (!output) {
+                return;
+            }
 
 
-// ============================================================
-// FORMAT JSON
-// ============================================================
-
-formatButton.addEventListener(
-    "click",
-    async () => {
-
-        const input =
-            jsonInput.value.trim();
-
-
-        hideError();
-        hideJsonSuccess();
-
-
-        if (!input) {
-
-            jsonOutput.value =
-                "";
-
-            inputStatus.textContent =
-                "Empty";
-
-            outputStatus.textContent =
-                "Waiting";
-
-
-            diagnosticStatus.textContent =
-                "Waiting";
-
-            diagnosticStatus.className =
-                "diagnostic-value";
-
-
-            keyCount.textContent =
-                "—";
-
-            arrayCount.textContent =
-                "—";
-
-            jsonSize.textContent =
-                "—";
-
-
-            return;
-        }
-
-
-        inputStatus.textContent =
-            "Processing...";
-
-        outputStatus.textContent =
-            "Formatting...";
-
-
-        try {
-
-            const response =
-                await fetch(
-                    "/format",
+            const blob =
+                new Blob(
+                    [output],
                     {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body: JSON.stringify({
-                            data: input
-                        })
+                        type:
+                            "text/csv"
                     }
                 );
 
 
-            const result =
-                await response.json();
+            const url =
+                URL.createObjectURL(blob);
 
 
-            if (result.success) {
-
-                jsonOutput.value =
-                    result.formatted;
+            const link =
+                document.createElement("a");
 
 
-                inputStatus.textContent =
-                    "Valid JSON";
+            link.href = url;
 
-                outputStatus.textContent =
-                    "Formatted";
-
-
-                updateDiagnostics(input);
-
-                hideError();
-
-            }
-
-            else {
-
-                jsonOutput.value =
-                    "";
-
-                inputStatus.textContent =
-                    "Invalid JSON";
-
-                outputStatus.textContent =
-                    "Error";
+            link.download =
+                "converted.csv";
 
 
-                updateDiagnostics(input);
+            document.body.appendChild(link);
 
-                showError(
-                    result.error
-                );
+            link.click();
 
-            }
+            link.remove();
+
+            URL.revokeObjectURL(url);
 
         }
+    );
 
-        catch (error) {
+}
 
-            console.error(error);
 
+/* ---------- CLEAR CSV ---------- */
 
-            inputStatus.textContent =
-                "Error";
+if (clearCsvButton) {
 
-            outputStatus.textContent =
-                "Failed";
+    clearCsvButton.addEventListener(
+        "click",
+        () => {
 
+            csvJsonInput.value = "";
 
-            showError(
-                "Unable to connect to the JSON server."
-            );
+            csvOutput.value = "";
 
-        }
-
-    }
-);
-
-
-// ============================================================
-// MINIFY
-// ============================================================
-
-minifyButton.addEventListener(
-    "click",
-    () => {
-
-        const input =
-            jsonInput.value.trim();
-
-
-        hideError();
-        hideJsonSuccess();
-
-
-        if (!input) {
-            return;
-        }
-
-
-        try {
-
-            const parsedJSON =
-                JSON.parse(input);
-
-
-            const minifiedJSON =
-                JSON.stringify(parsedJSON);
-
-
-            jsonOutput.value =
-                minifiedJSON;
-
-
-            inputStatus.textContent =
-                "Valid JSON";
-
-            outputStatus.textContent =
-                "Minified";
-
-
-            updateDiagnostics(input);
-
-        }
-
-        catch {
-
-            jsonOutput.value =
-                "";
-
-            inputStatus.textContent =
-                "Invalid JSON";
-
-            outputStatus.textContent =
-                "Error";
-
-
-            updateDiagnostics(input);
-
-
-            showError(
-                "Invalid JSON. Please check your syntax."
-            );
-
-        }
-
-    }
-);
-
-
-// ============================================================
-// COPY JSON
-// ============================================================
-
-copyButton.addEventListener(
-    "click",
-    async () => {
-
-        const output =
-            jsonOutput.value;
-
-
-        if (!output) {
-            return;
-        }
-
-
-        try {
-
-            await navigator.clipboard.writeText(
-                output
-            );
-
-
-            showJsonSuccess();
-
-
-            const originalText =
-                copyButton.textContent;
-
-
-            copyButton.textContent =
-                "Copied ✓";
-
-
-            setTimeout(() => {
-
-                copyButton.textContent =
-                    originalText;
-
-            }, 1500);
-
-        }
-
-        catch (error) {
-
-            console.error(error);
-
-
-            showError(
-                "Unable to copy JSON."
-            );
-
-        }
-
-    }
-);
-
-
-// ============================================================
-// DOWNLOAD JSON
-// ============================================================
-
-downloadButton.addEventListener(
-    "click",
-    () => {
-
-        const output =
-            jsonOutput.value;
-
-
-        if (!output) {
-            return;
-        }
-
-
-        hideJsonSuccess();
-
-
-        const file =
-            new Blob(
-                [output],
-                {
-                    type:
-                        "application/json"
-                }
-            );
-
-
-        const url =
-            URL.createObjectURL(file);
-
-
-        const link =
-            document.createElement("a");
-
-
-        link.href =
-            url;
-
-        link.download =
-            "formatted.json";
-
-
-        document.body.appendChild(link);
-
-        link.click();
-
-        document.body.removeChild(link);
-
-
-        URL.revokeObjectURL(url);
-
-    }
-);
-
-
-// ============================================================
-// CLEAR JSON
-// ============================================================
-
-clearButton.addEventListener(
-    "click",
-    () => {
-
-        jsonInput.value =
-            "";
-
-        jsonOutput.value =
-            "";
-
-
-        inputStatus.textContent =
-            "Ready";
-
-        outputStatus.textContent =
-            "Waiting";
-
-
-        diagnosticStatus.textContent =
-            "Waiting";
-
-        diagnosticStatus.className =
-            "diagnostic-value";
-
-
-        keyCount.textContent =
-            "—";
-
-        arrayCount.textContent =
-            "—";
-
-        jsonSize.textContent =
-            "—";
-
-
-        hideError();
-        hideJsonSuccess();
-
-
-        jsonInput.focus();
-
-    }
-);
-
-
-// ============================================================
-// TOOL NAVIGATION
-// ============================================================
-
-formatterTab.addEventListener(
-    "click",
-    () => {
-
-        formatterTool.style.display =
-            "block";
-
-        csvTool.style.display =
-            "none";
-
-
-        formatterTab.classList.add(
-            "active"
-        );
-
-        csvTab.classList.remove(
-            "active"
-        );
-
-    }
-);
-
-
-csvTab.addEventListener(
-    "click",
-    () => {
-
-        formatterTool.style.display =
-            "none";
-
-        csvTool.style.display =
-            "block";
-
-
-        formatterTab.classList.remove(
-            "active"
-        );
-
-        csvTab.classList.add(
-            "active"
-        );
-
-    }
-);
-
-
-// ============================================================
-// CONVERT JSON → CSV
-// ============================================================
-
-convertCsvButton.addEventListener(
-    "click",
-    async () => {
-
-        const input =
-            csvJsonInput.value.trim();
-
-
-        hideCsvSuccess();
-
-
-        if (!input) {
 
             csvInputStatus.textContent =
-                "Empty";
+                "Ready";
 
             csvOutputStatus.textContent =
                 "Waiting";
 
 
-            return;
-        }
-
-
-        csvInputStatus.textContent =
-            "Processing...";
-
-        csvOutputStatus.textContent =
-            "Converting...";
-
-
-        try {
-
-            const response =
-                await fetch(
-                    "/json-to-csv",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body: JSON.stringify({
-                            data: input
-                        })
-                    }
-                );
-
-
-            const result =
-                await response.json();
-
-
-            if (result.success) {
-
-                csvOutput.value =
-                    result.csv;
-
-
-                csvInputStatus.textContent =
-                    "Valid JSON";
-
-                csvOutputStatus.textContent =
-                    "CSV Ready";
-
-            }
-
-            else {
-
-                csvOutput.value =
-                    "";
-
-                csvInputStatus.textContent =
-                    "Invalid JSON";
-
-                csvOutputStatus.textContent =
-                    "Error";
-
-
-                showError(
-                    result.error
-                );
-
+            if (csvSuccessPanel) {
+                csvSuccessPanel.style.display =
+                    "none";
             }
 
         }
+    );
 
-        catch (error) {
+}
 
-            console.error(error);
 
-
-            csvInputStatus.textContent =
-                "Error";
-
-            csvOutputStatus.textContent =
-                "Failed";
-
-
-            showError(
-                "Unable to connect to the JSON server."
-            );
-
-        }
-
-    }
-);
-
-
-// ============================================================
-// COPY CSV
-// ============================================================
-
-copyCsvButton.addEventListener(
-    "click",
-    async () => {
-
-        const output =
-            csvOutput.value;
-
-
-        if (!output) {
-            return;
-        }
-
-
-        try {
-
-            await navigator.clipboard.writeText(
-                output
-            );
-
-
-            // SHOW CSV SUCCESS PANEL
-
-            showCsvSuccess();
-
-
-            const originalText =
-                copyCsvButton.textContent;
-
-
-            copyCsvButton.textContent =
-                "Copied ✓";
-
-
-            setTimeout(() => {
-
-                copyCsvButton.textContent =
-                    originalText;
-
-            }, 1500);
-
-        }
-
-        catch (error) {
-
-            console.error(error);
-
-
-            showError(
-                "Unable to copy CSV."
-            );
-
-        }
-
-    }
-);
-
-
-// ============================================================
-// DOWNLOAD CSV
-// ============================================================
-
-downloadCsvButton.addEventListener(
-    "click",
-    () => {
-
-        const output =
-            csvOutput.value;
-
-
-        if (!output) {
-            return;
-        }
-
-
-        hideCsvSuccess();
-
-
-        const file =
-            new Blob(
-                [output],
-                {
-                    type:
-                        "text/csv"
-                }
-            );
-
-
-        const url =
-            URL.createObjectURL(file);
-
-
-        const link =
-            document.createElement("a");
-
-
-        link.href =
-            url;
-
-        link.download =
-            "converted.csv";
-
-
-        document.body.appendChild(link);
-
-        link.click();
-
-        document.body.removeChild(link);
-
-
-        URL.revokeObjectURL(url);
-
-    }
-);
-
-
-// ============================================================
-// CLEAR CSV
-// ============================================================
-
-clearCsvButton.addEventListener(
-    "click",
-    () => {
-
-        csvJsonInput.value =
-            "";
-
-        csvOutput.value =
-            "";
-
-
-        csvInputStatus.textContent =
-            "Ready";
-
-        csvOutputStatus.textContent =
-            "Waiting";
-
-
-        hideError();
-        hideCsvSuccess();
-
-
-        csvJsonInput.focus();
-
-    }
-);
-
-
-// ============================================================
-// HIDE NOTIFICATIONS WHEN USER TYPES
-// ============================================================
-
-jsonInput.addEventListener(
-    "input",
-    () => {
-
-        hideJsonSuccess();
-
-    }
-);
-
-
-csvJsonInput.addEventListener(
-    "input",
-    () => {
-
-        hideCsvSuccess();
-
-    }
-);
 /* =====================================================
    JSON DIFF
    ===================================================== */
 
-const diffTab = document.getElementById("diffTab");
-const diffTool = document.getElementById("diffTool");
+const diffInputA =
+    document.getElementById("diffInputA");
 
-const diffInputA = document.getElementById("diffInputA");
-const diffInputB = document.getElementById("diffInputB");
+const diffInputB =
+    document.getElementById("diffInputB");
 
-const diffAStatus = document.getElementById("diffAStatus");
-const diffBStatus = document.getElementById("diffBStatus");
+const compareButton =
+    document.getElementById("compareButton");
 
-const compareButton = document.getElementById("compareButton");
-const clearDiffButton = document.getElementById("clearDiffButton");
+const clearDiffButton =
+    document.getElementById("clearDiffButton");
 
-const diffOutput = document.getElementById("diffOutput");
-const diffCount = document.getElementById("diffCount");
+const diffOutput =
+    document.getElementById("diffOutput");
+
+const diffCount =
+    document.getElementById("diffCount");
+
+const diffAStatus =
+    document.getElementById("diffAStatus");
+
+const diffBStatus =
+    document.getElementById("diffBStatus");
 
 
-/* ---------- SWITCH TO DIFF ---------- */
+/* ---------- DIFF TAB ---------- */
 
 if (diffTab) {
 
-    diffTab.addEventListener("click", () => {
+    diffTab.addEventListener(
+        "click",
+        () => {
 
-        /*
-         * Use the existing tool-switching system first.
-         * This prevents the formatter and CSV tools
-         * from remaining visible underneath Diff.
-         */
+            document
+                .querySelectorAll(".tool-tab")
+                .forEach(tab => {
+                    tab.classList.remove("active");
+                });
 
-        document
-            .querySelectorAll(".tool-tab")
-            .forEach(tab => {
-                tab.classList.remove("active");
-            });
-
-        diffTab.classList.add("active");
+            diffTab.classList.add("active");
 
 
-        /*
-         * Hide the existing tools.
-         */
-
-        const formatterTool =
-            document.getElementById("formatterTool");
-
-        const csvTool =
-            document.getElementById("csvTool");
-
-
-        if (formatterTool) {
-            formatterTool.style.display = "none";
-        }
-
-        if (csvTool) {
-            csvTool.style.display = "none";
-        }
-
-
-        /*
-         * Show Diff.
-         */
-
-        if (diffTool) {
-            diffTool.style.display = "block";
-        }
-
-    });
-
-}
-
-
-/* ---------- VALUE FORMATTER ---------- */
-
-function formatDiffValue(value) {
-
-    if (typeof value === "string") {
-        return `"${value}"`;
-    }
-
-    if (value === null) {
-        return "null";
-    }
-
-    if (typeof value === "object") {
-        return JSON.stringify(value);
-    }
-
-    return String(value);
-}
-
-
-/* ---------- PATH FORMATTER ---------- */
-
-function formatDiffPath(path) {
-
-    if (!path.length) {
-        return "Root";
-    }
-
-    return path
-        .map(part => {
-
-            if (typeof part === "number") {
-                return `[${part}]`;
+            if (formatterTool) {
+                formatterTool.style.display =
+                    "none";
             }
 
-            return part;
+            if (csvTool) {
+                csvTool.style.display =
+                    "none";
+            }
 
-        })
-        .join(".");
+            if (diffTool) {
+                diffTool.style.display =
+                    "block";
+            }
+
+            if (batchTool) {
+                batchTool.style.display =
+                    "none";
+            }
+
+            if (schemaTool) {
+                schemaTool.style.display =
+                    "none";
+            }
+
+        }
+    );
+
 }
 
 
-/* ---------- COMPARE VALUES ---------- */
+/* ---------- COMPARE JSON VALUES ---------- */
 
 function compareJSONValues(
-    valueA,
-    valueB,
-    path = [],
-    differences = []
+    a,
+    b,
+    path = ""
 ) {
 
-    /*
-     * If both values are objects, compare their keys.
-     */
+    const differences = [];
+
 
     if (
-        valueA !== null &&
-        valueB !== null &&
-        typeof valueA === "object" &&
-        typeof valueB === "object"
+        typeof a !==
+        typeof b
     ) {
 
-        /*
-         * Arrays
-         */
+        differences.push({
+            type: "changed",
+            path: path || "root",
+            oldValue: a,
+            newValue: b
+        });
 
-        if (
-            Array.isArray(valueA) ||
-            Array.isArray(valueB)
-        ) {
+        return differences;
 
-            if (
-                !Array.isArray(valueA) ||
-                !Array.isArray(valueB)
-            ) {
-
-                differences.push({
-                    type: "changed",
-                    path: formatDiffPath(path),
-                    oldValue: valueA,
-                    newValue: valueB
-                });
-
-                return differences;
-            }
+    }
 
 
-            const maxLength = Math.max(
-                valueA.length,
-                valueB.length
-            );
+    if (
+        a === null ||
+        b === null
+    ) {
 
+        if (a !== b) {
 
-            for (let i = 0; i < maxLength; i++) {
-
-                const currentPath = [
-                    ...path,
-                    i
-                ];
-
-
-                if (i >= valueA.length) {
-
-                    differences.push({
-                        type: "added",
-                        path: formatDiffPath(currentPath),
-                        newValue: valueB[i]
-                    });
-
-                    continue;
-                }
-
-
-                if (i >= valueB.length) {
-
-                    differences.push({
-                        type: "removed",
-                        path: formatDiffPath(currentPath),
-                        oldValue: valueA[i]
-                    });
-
-                    continue;
-                }
-
-
-                compareJSONValues(
-                    valueA[i],
-                    valueB[i],
-                    currentPath,
-                    differences
-                );
-
-            }
-
-            return differences;
-        }
-
-
-        /*
-         * Regular objects
-         */
-
-        const keysA = Object.keys(valueA);
-        const keysB = Object.keys(valueB);
-
-        const allKeys = new Set([
-            ...keysA,
-            ...keysB
-        ]);
-
-
-        for (const key of allKeys) {
-
-            const currentPath = [
-                ...path,
-                key
-            ];
-
-
-            if (!Object.prototype.hasOwnProperty.call(valueA, key)) {
-
-                differences.push({
-                    type: "added",
-                    path: formatDiffPath(currentPath),
-                    newValue: valueB[key]
-                });
-
-                continue;
-            }
-
-
-            if (!Object.prototype.hasOwnProperty.call(valueB, key)) {
-
-                differences.push({
-                    type: "removed",
-                    path: formatDiffPath(currentPath),
-                    oldValue: valueA[key]
-                });
-
-                continue;
-            }
-
-
-            compareJSONValues(
-                valueA[key],
-                valueB[key],
-                currentPath,
-                differences
-            );
+            differences.push({
+                type: "changed",
+                path: path || "root",
+                oldValue: a,
+                newValue: b
+            });
 
         }
 
         return differences;
+
     }
 
 
-    /*
-     * Primitive values.
-     */
+    if (
+        typeof a !== "object"
+    ) {
 
-    if (JSON.stringify(valueA) !== JSON.stringify(valueB)) {
+        if (a !== b) {
+
+            differences.push({
+                type: "changed",
+                path: path || "root",
+                oldValue: a,
+                newValue: b
+            });
+
+        }
+
+        return differences;
+
+    }
+
+
+    if (
+        Array.isArray(a) !==
+        Array.isArray(b)
+    ) {
 
         differences.push({
             type: "changed",
-            path: formatDiffPath(path),
-            oldValue: valueA,
-            newValue: valueB
+            path: path || "root",
+            oldValue: a,
+            newValue: b
         });
+
+        return differences;
 
     }
 
 
+    if (Array.isArray(a)) {
+
+        const maxLength =
+            Math.max(
+                a.length,
+                b.length
+            );
+
+
+        for (
+            let i = 0;
+            i < maxLength;
+            i++
+        ) {
+
+            const currentPath =
+                `${path}[${i}]`;
+
+
+            if (
+                i >= a.length
+            ) {
+
+                differences.push({
+                    type: "added",
+                    path: currentPath,
+                    newValue: b[i]
+                });
+
+                continue;
+
+            }
+
+
+            if (
+                i >= b.length
+            ) {
+
+                differences.push({
+                    type: "removed",
+                    path: currentPath,
+                    oldValue: a[i]
+                });
+
+                continue;
+
+            }
+
+
+            differences.push(
+                ...compareJSONValues(
+                    a[i],
+                    b[i],
+                    currentPath
+                )
+            );
+
+        }
+
+
+        return differences;
+
+    }
+
+
+    const keys =
+        new Set([
+            ...Object.keys(a),
+            ...Object.keys(b)
+        ]);
+
+
+    keys.forEach(key => {
+
+        const currentPath =
+            path
+                ? `${path}.${key}`
+                : key;
+
+
+        if (
+            !Object.prototype.hasOwnProperty.call(
+                a,
+                key
+            )
+        ) {
+
+            differences.push({
+                type: "added",
+                path: currentPath,
+                newValue: b[key]
+            });
+
+            return;
+
+        }
+
+
+        if (
+            !Object.prototype.hasOwnProperty.call(
+                b,
+                key
+            )
+        ) {
+
+            differences.push({
+                type: "removed",
+                path: currentPath,
+                oldValue: a[key]
+            });
+
+            return;
+
+        }
+
+
+        differences.push(
+            ...compareJSONValues(
+                a[key],
+                b[key],
+                currentPath
+            )
+        );
+
+    });
+
+
     return differences;
+
+}
+
+
+/* ---------- FORMAT DIFF VALUE ---------- */
+
+function formatDiffValue(value) {
+
+    if (
+        typeof value === "string"
+    ) {
+
+        return `"${value}"`;
+
+    }
+
+
+    if (
+        value === null
+    ) {
+
+        return "null";
+
+    }
+
+
+    return JSON.stringify(value);
+
 }
 
 
 /* ---------- DISPLAY DIFFERENCES ---------- */
 
-function displayDifferences(differences) {
+function displayDifferences(
+    differences
+) {
 
     diffOutput.innerHTML = "";
 
 
     if (differences.length === 0) {
 
-        diffCount.textContent = "No changes";
+        diffCount.textContent =
+            "No differences";
 
         diffCount.className =
             "status diagnostic-valid";
+
 
         const message =
             document.createElement("div");
 
         message.className =
-            "diff-empty";
+            "diff-no-change";
 
         message.textContent =
-            "✓ The JSON documents are identical.";
+            "The JSON documents are identical.";
 
-        diffOutput.appendChild(message);
+        diffOutput.appendChild(
+            message
+        );
 
         return;
+
     }
 
 
     diffCount.textContent =
         `${differences.length} change${
-            differences.length === 1 ? "" : "s"
+            differences.length === 1
+                ? ""
+                : "s"
         }`;
 
 
@@ -1388,101 +1240,124 @@ function displayDifferences(differences) {
         "status diff-change";
 
 
-    differences.forEach(difference => {
+    differences.forEach(
+        difference => {
 
-        const item =
-            document.createElement("div");
-
-        item.className =
-            "diff-item";
-
-
-        const path =
-            document.createElement("div");
-
-        path.className =
-            "diff-path";
-
-        path.textContent =
-            difference.path;
-
-
-        item.appendChild(path);
-
-
-        if (difference.type === "changed") {
-
-            const oldValue =
+            const item =
                 document.createElement("div");
 
-            oldValue.className =
-                "diff-old";
-
-            oldValue.textContent =
-                `− ${formatDiffValue(
-                    difference.oldValue
-                )}`;
+            item.className =
+                "diff-item";
 
 
-            const newValue =
+            const path =
                 document.createElement("div");
 
-            newValue.className =
-                "diff-new";
+            path.className =
+                "diff-path";
 
-            newValue.textContent =
-                `+ ${formatDiffValue(
-                    difference.newValue
-                )}`;
+            path.textContent =
+                difference.path;
 
 
-            item.appendChild(oldValue);
-            item.appendChild(newValue);
+            item.appendChild(path);
+
+
+            if (
+                difference.type ===
+                "changed"
+            ) {
+
+                const oldValue =
+                    document.createElement("div");
+
+                oldValue.className =
+                    "diff-removed";
+
+                oldValue.textContent =
+                    `− Old: ${formatDiffValue(
+                        difference.oldValue
+                    )}`;
+
+
+                item.appendChild(
+                    oldValue
+                );
+
+
+                const newValue =
+                    document.createElement("div");
+
+                newValue.className =
+                    "diff-added";
+
+                newValue.textContent =
+                    `+ New: ${formatDiffValue(
+                        difference.newValue
+                    )}`;
+
+
+                item.appendChild(
+                    newValue
+                );
+
+            }
+
+
+            if (
+                difference.type ===
+                "added"
+            ) {
+
+                const added =
+                    document.createElement("div");
+
+                added.className =
+                    "diff-added";
+
+                added.textContent =
+                    `+ Added: ${formatDiffValue(
+                        difference.newValue
+                    )}`;
+
+
+                item.appendChild(
+                    added
+                );
+
+            }
+
+
+            if (
+                difference.type ===
+                "removed"
+            ) {
+
+                const removed =
+                    document.createElement("div");
+
+                removed.className =
+                    "diff-removed";
+
+                removed.textContent =
+                    `− Removed: ${formatDiffValue(
+                        difference.oldValue
+                    )}`;
+
+
+                item.appendChild(
+                    removed
+                );
+
+            }
+
+
+            diffOutput.appendChild(
+                item
+            );
 
         }
-
-
-        if (difference.type === "added") {
-
-            const added =
-                document.createElement("div");
-
-            added.className =
-                "diff-added";
-
-            added.textContent =
-                `+ Added: ${formatDiffValue(
-                    difference.newValue
-                )}`;
-
-
-            item.appendChild(added);
-
-        }
-
-
-        if (difference.type === "removed") {
-
-            const removed =
-                document.createElement("div");
-
-            removed.className =
-                "diff-removed";
-
-            removed.textContent =
-                `− Removed: ${formatDiffValue(
-                    difference.oldValue
-                )}`;
-
-
-            item.appendChild(removed);
-
-        }
-
-
-        diffOutput.appendChild(item);
-
-    });
+    );
 
 }
 
@@ -1506,6 +1381,7 @@ if (compareButton) {
 
                 diffOutput.innerHTML = "";
 
+
                 const error =
                     document.createElement("div");
 
@@ -1515,7 +1391,11 @@ if (compareButton) {
                 error.textContent =
                     "Please provide JSON in both fields.";
 
-                diffOutput.appendChild(error);
+
+                diffOutput.appendChild(
+                    error
+                );
+
 
                 diffCount.textContent =
                     "Missing JSON";
@@ -1523,7 +1403,9 @@ if (compareButton) {
                 diffCount.className =
                     "status diff-change";
 
+
                 return;
+
             }
 
 
@@ -1536,6 +1418,7 @@ if (compareButton) {
                 jsonA =
                     JSON.parse(rawA);
 
+
                 diffAStatus.textContent =
                     "Valid";
 
@@ -1552,6 +1435,7 @@ if (compareButton) {
 
 
                 diffOutput.innerHTML = "";
+
 
                 const message =
                     document.createElement("div");
@@ -1562,7 +1446,11 @@ if (compareButton) {
                 message.textContent =
                     "JSON A is invalid. Please check its syntax.";
 
-                diffOutput.appendChild(message);
+
+                diffOutput.appendChild(
+                    message
+                );
+
 
                 diffCount.textContent =
                     "Invalid JSON";
@@ -1570,7 +1458,9 @@ if (compareButton) {
                 diffCount.className =
                     "status diff-change";
 
+
                 return;
+
             }
 
 
@@ -1578,6 +1468,7 @@ if (compareButton) {
 
                 jsonB =
                     JSON.parse(rawB);
+
 
                 diffBStatus.textContent =
                     "Valid";
@@ -1596,6 +1487,7 @@ if (compareButton) {
 
                 diffOutput.innerHTML = "";
 
+
                 const message =
                     document.createElement("div");
 
@@ -1605,7 +1497,11 @@ if (compareButton) {
                 message.textContent =
                     "JSON B is invalid. Please check its syntax.";
 
-                diffOutput.appendChild(message);
+
+                diffOutput.appendChild(
+                    message
+                );
+
 
                 diffCount.textContent =
                     "Invalid JSON";
@@ -1613,7 +1509,9 @@ if (compareButton) {
                 diffCount.className =
                     "status diff-change";
 
+
                 return;
+
             }
 
 
@@ -1643,13 +1541,16 @@ if (clearDiffButton) {
         () => {
 
             diffInputA.value = "";
+
             diffInputB.value = "";
+
 
             diffAStatus.textContent =
                 "Ready";
 
             diffBStatus.textContent =
                 "Ready";
+
 
             diffAStatus.className =
                 "status";
@@ -1672,30 +1573,46 @@ if (clearDiffButton) {
     );
 
 }
+
+
 /* =====================================================
    BATCH JSON PROCESSOR
    ===================================================== */
 
-const batchTab = document.getElementById("batchTab");
-const batchTool = document.getElementById("batchTool");
+const batchFileInput =
+    document.getElementById(
+        "batchFileInput"
+    );
 
-const batchFileInput = document.getElementById("batchFileInput");
-const batchFileList = document.getElementById("batchFileList");
+const batchFileList =
+    document.getElementById(
+        "batchFileList"
+    );
 
 const batchFormatButton =
-    document.getElementById("batchFormatButton");
+    document.getElementById(
+        "batchFormatButton"
+    );
 
 const batchMinifyButton =
-    document.getElementById("batchMinifyButton");
+    document.getElementById(
+        "batchMinifyButton"
+    );
 
 const batchClearButton =
-    document.getElementById("batchClearButton");
+    document.getElementById(
+        "batchClearButton"
+    );
 
 const batchResultList =
-    document.getElementById("batchResultList");
+    document.getElementById(
+        "batchResultList"
+    );
 
 const batchResultCount =
-    document.getElementById("batchResultCount");
+    document.getElementById(
+        "batchResultCount"
+    );
 
 
 let batchFiles = [];
@@ -1705,44 +1622,51 @@ let batchFiles = [];
 
 if (batchTab) {
 
-    batchTab.addEventListener("click", () => {
+    batchTab.addEventListener(
+        "click",
+        () => {
 
-        document
-            .querySelectorAll(".tool-tab")
-            .forEach(tab => {
-                tab.classList.remove("active");
-            });
-
-        batchTab.classList.add("active");
-
-
-        const formatterTool =
-            document.getElementById("formatterTool");
-
-        const csvTool =
-            document.getElementById("csvTool");
-
-        const diffTool =
-            document.getElementById("diffTool");
+            document
+                .querySelectorAll(".tool-tab")
+                .forEach(tab => {
+                    tab.classList.remove(
+                        "active"
+                    );
+                });
 
 
-        if (formatterTool) {
-            formatterTool.style.display = "none";
+            batchTab.classList.add(
+                "active"
+            );
+
+
+            if (formatterTool) {
+                formatterTool.style.display =
+                    "none";
+            }
+
+            if (csvTool) {
+                csvTool.style.display =
+                    "none";
+            }
+
+            if (diffTool) {
+                diffTool.style.display =
+                    "none";
+            }
+
+            if (schemaTool) {
+                schemaTool.style.display =
+                    "none";
+            }
+
+            if (batchTool) {
+                batchTool.style.display =
+                    "block";
+            }
+
         }
-
-        if (csvTool) {
-            csvTool.style.display = "none";
-        }
-
-        if (diffTool) {
-            diffTool.style.display = "none";
-        }
-
-        if (batchTool) {
-            batchTool.style.display = "block";
-        }
-
-    });
+    );
 
 }
 
@@ -1751,14 +1675,20 @@ if (batchTab) {
 
 if (batchFileInput) {
 
-    batchFileInput.addEventListener("change", () => {
+    batchFileInput.addEventListener(
+        "change",
+        () => {
 
-        batchFiles =
-            Array.from(batchFileInput.files);
+            batchFiles =
+                Array.from(
+                    batchFileInput.files
+                );
 
-        displayBatchFiles();
 
-    });
+            displayBatchFiles();
+
+        }
+    );
 
 }
 
@@ -1781,47 +1711,58 @@ function displayBatchFiles() {
         empty.textContent =
             "No files selected.";
 
-        batchFileList.appendChild(empty);
+
+        batchFileList.appendChild(
+            empty
+        );
+
 
         return;
+
     }
 
 
-    batchFiles.forEach(file => {
+    batchFiles.forEach(
+        file => {
 
-        const item =
-            document.createElement("div");
+            const item =
+                document.createElement("div");
 
-        item.className =
-            "batch-file";
-
-
-        const name =
-            document.createElement("span");
-
-        name.className =
-            "batch-file-name";
-
-        name.textContent =
-            file.name;
+            item.className =
+                "batch-file";
 
 
-        const status =
-            document.createElement("span");
+            const name =
+                document.createElement("span");
 
-        status.className =
-            "batch-file-status";
+            name.className =
+                "batch-file-name";
 
-        status.textContent =
-            "Ready";
+            name.textContent =
+                file.name;
 
 
-        item.appendChild(name);
-        item.appendChild(status);
+            const status =
+                document.createElement("span");
 
-        batchFileList.appendChild(item);
+            status.className =
+                "batch-file-status";
 
-    });
+            status.textContent =
+                "Ready";
+
+
+            item.appendChild(name);
+
+            item.appendChild(status);
+
+
+            batchFileList.appendChild(
+                item
+            );
+
+        }
+    );
 
 }
 
@@ -1830,58 +1771,75 @@ function displayBatchFiles() {
 
 function readBatchFile(file) {
 
-    return new Promise((resolve, reject) => {
+    return new Promise(
+        (
+            resolve,
+            reject
+        ) => {
 
-        const reader =
-            new FileReader();
-
-
-        reader.onload = () => {
-
-            resolve(reader.result);
-
-        };
+            const reader =
+                new FileReader();
 
 
-        reader.onerror = () => {
+            reader.onload = () => {
 
-            reject(
-                new Error("Unable to read file.")
-            );
+                resolve(
+                    reader.result
+                );
 
-        };
+            };
 
 
-        reader.readAsText(file);
+            reader.onerror = () => {
 
-    });
+                reject(
+                    new Error(
+                        "Unable to read file."
+                    )
+                );
+
+            };
+
+
+            reader.readAsText(file);
+
+        }
+    );
 
 }
 
 
 /* ---------- PROCESS FILES ---------- */
 
-async function processBatchFiles(mode) {
+async function processBatchFiles(
+    mode
+) {
 
     if (batchFiles.length === 0) {
 
         batchResultList.textContent =
             "Please select at least one JSON file.";
 
+
         batchResultCount.textContent =
             "No files";
 
+
         return;
+
     }
 
 
-    batchResultList.innerHTML = "";
+    batchResultList.innerHTML =
+        "";
+
 
     batchResultCount.textContent =
         "Processing...";
 
 
     let successCount = 0;
+
     let errorCount = 0;
 
 
@@ -1904,13 +1862,18 @@ async function processBatchFiles(mode) {
             file.name;
 
 
-        result.appendChild(fileName);
+        result.appendChild(
+            fileName
+        );
 
 
         try {
 
             const text =
-                await readBatchFile(file);
+                await readBatchFile(
+                    file
+                );
+
 
             const json =
                 JSON.parse(text);
@@ -1919,7 +1882,9 @@ async function processBatchFiles(mode) {
             let output;
 
 
-            if (mode === "format") {
+            if (
+                mode === "format"
+            ) {
 
                 output =
                     JSON.stringify(
@@ -1931,7 +1896,9 @@ async function processBatchFiles(mode) {
             } else {
 
                 output =
-                    JSON.stringify(json);
+                    JSON.stringify(
+                        json
+                    );
 
             }
 
@@ -1948,13 +1915,10 @@ async function processBatchFiles(mode) {
                     : "✓ Valid — minified";
 
 
-            result.appendChild(status);
+            result.appendChild(
+                status
+            );
 
-
-            /*
-             * Create a download button for
-             * the processed file.
-             */
 
             const downloadButton =
                 document.createElement("button");
@@ -1981,13 +1945,20 @@ async function processBatchFiles(mode) {
 
 
                     const url =
-                        URL.createObjectURL(blob);
+                        URL.createObjectURL(
+                            blob
+                        );
 
 
                     const link =
-                        document.createElement("a");
+                        document.createElement(
+                            "a"
+                        );
 
-                    link.href = url;
+
+                    link.href =
+                        url;
+
 
                     link.download =
                         mode === "format"
@@ -2001,13 +1972,20 @@ async function processBatchFiles(mode) {
                             );
 
 
-                    document.body.appendChild(link);
+                    document.body.appendChild(
+                        link
+                    );
+
 
                     link.click();
 
+
                     link.remove();
 
-                    URL.revokeObjectURL(url);
+
+                    URL.revokeObjectURL(
+                        url
+                    );
 
                 }
             );
@@ -2033,7 +2011,10 @@ async function processBatchFiles(mode) {
                 "✕ Invalid JSON";
 
 
-            result.appendChild(status);
+            result.appendChild(
+                status
+            );
+
 
             errorCount++;
 
@@ -2061,7 +2042,9 @@ if (batchFormatButton) {
         "click",
         () => {
 
-            processBatchFiles("format");
+            processBatchFiles(
+                "format"
+            );
 
         }
     );
@@ -2077,7 +2060,9 @@ if (batchMinifyButton) {
         "click",
         () => {
 
-            processBatchFiles("minify");
+            processBatchFiles(
+                "minify"
+            );
 
         }
     );
@@ -2095,12 +2080,17 @@ if (batchClearButton) {
 
             batchFiles = [];
 
-            batchFileInput.value = "";
+
+            batchFileInput.value =
+                "";
+
 
             displayBatchFiles();
 
+
             batchResultList.textContent =
                 "Process your selected files to see results.";
+
 
             batchResultCount.textContent =
                 "Waiting";
@@ -2108,4 +2098,928 @@ if (batchClearButton) {
         }
     );
 
+}
+
+
+/* =====================================================
+   JSON SCHEMA GENERATOR
+   ===================================================== */
+
+const schemaInput =
+    document.getElementById(
+        "schemaInput"
+    );
+
+const schemaOutput =
+    document.getElementById(
+        "schemaOutput"
+    );
+
+const generateSchemaButton =
+    document.getElementById(
+        "generateSchemaButton"
+    );
+
+const copySchemaButton =
+    document.getElementById(
+        "copySchemaButton"
+    );
+
+const downloadSchemaButton =
+    document.getElementById(
+        "downloadSchemaButton"
+    );
+
+const clearSchemaButton =
+    document.getElementById(
+        "clearSchemaButton"
+    );
+
+const schemaInputStatus =
+    document.getElementById(
+        "schemaInputStatus"
+    );
+
+const schemaOutputStatus =
+    document.getElementById(
+        "schemaOutputStatus"
+    );
+
+
+/* ---------- SWITCH TO SCHEMA ---------- */
+
+if (schemaTab) {
+
+    schemaTab.addEventListener(
+        "click",
+        () => {
+
+            document
+                .querySelectorAll(".tool-tab")
+                .forEach(tab => {
+                    tab.classList.remove(
+                        "active"
+                    );
+                });
+
+
+            schemaTab.classList.add(
+                "active"
+            );
+
+
+            const tools = [
+                formatterTool,
+                csvTool,
+                diffTool,
+                batchTool,
+                schemaTool
+            ];
+
+
+            tools.forEach(
+                tool => {
+
+                    if (tool) {
+                        tool.style.display =
+                            "none";
+                    }
+
+                }
+            );
+
+
+            if (schemaTool) {
+                schemaTool.style.display =
+                    "block";
+            }
+
+        }
+    );
+
+}
+
+
+/* ---------- BUILD SCHEMA ---------- */
+
+function buildJsonSchema(value) {
+
+    if (value === null) {
+
+        return {
+            type: "null"
+        };
+
+    }
+
+
+    if (Array.isArray(value)) {
+
+        const schema = {
+            type: "array"
+        };
+
+
+        if (value.length > 0) {
+
+            schema.items =
+                buildJsonSchema(
+                    value[0]
+                );
+
+        }
+
+
+        return schema;
+
+    }
+
+
+    if (
+        typeof value ===
+        "object"
+    ) {
+
+        const properties = {};
+
+        const required = [];
+
+
+        Object.keys(value)
+            .forEach(
+                key => {
+
+                    properties[key] =
+                        buildJsonSchema(
+                            value[key]
+                        );
+
+
+                    required.push(
+                        key
+                    );
+
+                }
+            );
+
+
+        const schema = {
+            type: "object",
+            properties: properties
+        };
+
+
+        if (
+            required.length > 0
+        ) {
+
+            schema.required =
+                required;
+
+        }
+
+
+        return schema;
+
+    }
+
+
+    if (
+        typeof value ===
+        "string"
+    ) {
+
+        return {
+            type: "string"
+        };
+
+    }
+
+
+    if (
+        typeof value ===
+        "number"
+    ) {
+
+        return {
+
+            type:
+                Number.isInteger(value)
+                    ? "integer"
+                    : "number"
+
+        };
+
+    }
+
+
+    if (
+        typeof value ===
+        "boolean"
+    ) {
+
+        return {
+            type: "boolean"
+        };
+
+    }
+
+
+    return {};
+
+}
+
+
+/* ---------- GENERATE SCHEMA ---------- */
+
+if (generateSchemaButton) {
+
+    generateSchemaButton.addEventListener(
+        "click",
+        () => {
+
+            const input =
+                schemaInput
+                    ? schemaInput.value.trim()
+                    : "";
+
+
+            if (!input) {
+
+                if (schemaInputStatus) {
+
+                    schemaInputStatus.textContent =
+                        "Enter JSON";
+
+                }
+
+
+                if (schemaOutputStatus) {
+
+                    schemaOutputStatus.textContent =
+                        "Waiting";
+
+                }
+
+
+                return;
+
+            }
+
+
+            try {
+
+                const json =
+                    JSON.parse(input);
+
+
+                const schema =
+                    buildJsonSchema(
+                        json
+                    );
+
+
+                if (schemaOutput) {
+
+                    schemaOutput.value =
+                        JSON.stringify(
+                            schema,
+                            null,
+                            2
+                        );
+
+                }
+
+
+                if (schemaInputStatus) {
+
+                    schemaInputStatus.textContent =
+                        "Valid JSON";
+
+                }
+
+
+                if (schemaOutputStatus) {
+
+                    schemaOutputStatus.textContent =
+                        "Generated";
+
+                }
+
+
+            } catch (error) {
+
+                if (schemaOutput) {
+
+                    schemaOutput.value =
+                        "";
+
+                }
+
+
+                if (schemaInputStatus) {
+
+                    schemaInputStatus.textContent =
+                        "Invalid JSON";
+
+                }
+
+
+                if (schemaOutputStatus) {
+
+                    schemaOutputStatus.textContent =
+                        "No schema";
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ---------- COPY SCHEMA ---------- */
+
+if (copySchemaButton) {
+
+    copySchemaButton.addEventListener(
+        "click",
+        async () => {
+
+            const output =
+                schemaOutput
+                    ? schemaOutput.value.trim()
+                    : "";
+
+
+            if (!output) {
+                return;
+            }
+
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    output
+                );
+
+
+                if (schemaOutputStatus) {
+
+                    schemaOutputStatus.textContent =
+                        "Copied";
+
+                }
+
+
+            } catch (error) {
+
+                if (schemaOutputStatus) {
+
+                    schemaOutputStatus.textContent =
+                        "Copy failed";
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ---------- DOWNLOAD SCHEMA ---------- */
+
+if (downloadSchemaButton) {
+
+    downloadSchemaButton.addEventListener(
+        "click",
+        () => {
+
+            const output =
+                schemaOutput
+                    ? schemaOutput.value.trim()
+                    : "";
+
+
+            if (!output) {
+                return;
+            }
+
+
+            const blob =
+                new Blob(
+                    [output],
+                    {
+                        type:
+                            "application/json"
+                    }
+                );
+
+
+            const url =
+                URL.createObjectURL(
+                    blob
+                );
+
+
+            const link =
+                document.createElement(
+                    "a"
+                );
+
+
+            link.href =
+                url;
+
+
+            link.download =
+                "schema.json";
+
+
+            document.body.appendChild(
+                link
+            );
+
+
+            link.click();
+
+
+            link.remove();
+
+
+            URL.revokeObjectURL(
+                url
+            );
+
+        }
+    );
+
+}
+
+
+/* ---------- CLEAR SCHEMA ---------- */
+
+if (clearSchemaButton) {
+
+    clearSchemaButton.addEventListener(
+        "click",
+        () => {
+
+            if (schemaInput) {
+
+                schemaInput.value =
+                    "";
+
+            }
+
+
+            if (schemaOutput) {
+
+                schemaOutput.value =
+                    "";
+
+            }
+
+
+            if (schemaInputStatus) {
+
+                schemaInputStatus.textContent =
+                    "Ready";
+
+            }
+
+
+            if (schemaOutputStatus) {
+
+                schemaOutputStatus.textContent =
+                    "Waiting";
+
+            }
+
+
+            if (schemaInput) {
+
+                schemaInput.focus();
+
+            }
+
+        }
+    );
+
+}
+/* =====================================================
+   API TESTER
+   ===================================================== */
+
+const apiTab =
+    document.getElementById("apiTab");
+
+const apiTool =
+    document.getElementById("apiTool");
+
+const apiMethod =
+    document.getElementById("apiMethod");
+
+const apiUrl =
+    document.getElementById("apiUrl");
+
+const apiHeaders =
+    document.getElementById("apiHeaders");
+
+const apiBody =
+    document.getElementById("apiBody");
+
+const sendApiButton =
+    document.getElementById("sendApiButton");
+
+const apiResponse =
+    document.getElementById("apiResponse");
+
+const apiResponseStatus =
+    document.getElementById("apiResponseStatus");
+
+const copyApiResponseButton =
+    document.getElementById(
+        "copyApiResponseButton"
+    );
+
+const clearApiButton =
+    document.getElementById(
+        "clearApiButton"
+    );
+
+const apiBodySection =
+    document.getElementById(
+        "apiBodySection"
+    );
+
+
+/* ---------- API TAB ---------- */
+
+if (apiTab) {
+
+    apiTab.addEventListener(
+        "click",
+        () => {
+
+            document
+                .querySelectorAll(".tool-tab")
+                .forEach(tab => {
+                    tab.classList.remove("active");
+                });
+
+            apiTab.classList.add("active");
+
+
+            const tools = [
+                formatterTool,
+                csvTool,
+                diffTool,
+                batchTool,
+                schemaTool,
+                apiTool
+            ];
+
+
+            tools.forEach(tool => {
+
+                if (tool) {
+                    tool.style.display = "none";
+                }
+
+            });
+
+
+            if (apiTool) {
+                apiTool.style.display = "block";
+            }
+
+        }
+    );
+
+}
+
+
+/* ---------- METHOD BODY VISIBILITY ---------- */
+
+if (apiMethod && apiBodySection) {
+
+    apiMethod.addEventListener(
+        "change",
+        () => {
+
+            const method =
+                apiMethod.value;
+
+            if (
+                method === "GET" ||
+                method === "DELETE"
+            ) {
+
+                apiBodySection.style.display =
+                    "none";
+
+            } else {
+
+                apiBodySection.style.display =
+                    "block";
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ---------- SEND REQUEST ---------- */
+
+if (sendApiButton) {
+
+    sendApiButton.addEventListener(
+        "click",
+        async () => {
+
+            const method =
+                apiMethod.value;
+
+            const url =
+                apiUrl.value.trim();
+
+            const headersRaw =
+                apiHeaders.value.trim();
+
+            const body =
+                apiBody.value.trim();
+
+
+            if (!url) {
+
+                apiResponseStatus.textContent =
+                    "Missing URL";
+
+                apiResponse.value =
+                    "Please enter an API URL.";
+
+                return;
+
+            }
+
+
+            let headers = {};
+
+
+            if (headersRaw) {
+
+                try {
+
+                    headers =
+                        JSON.parse(headersRaw);
+
+                    if (
+                        typeof headers !== "object" ||
+                        Array.isArray(headers) ||
+                        headers === null
+                    ) {
+
+                        throw new Error(
+                            "Headers must be a JSON object."
+                        );
+
+                    }
+
+                } catch (error) {
+
+                    apiResponseStatus.textContent =
+                        "Invalid Headers";
+
+                    apiResponse.value =
+                        error.message;
+
+                    return;
+
+                }
+
+            }
+
+
+            if (body) {
+
+                if (
+                    method === "POST" ||
+                    method === "PUT" ||
+                    method === "PATCH"
+                ) {
+
+                    try {
+
+                        JSON.parse(body);
+
+                    } catch (error) {
+
+                        apiResponseStatus.textContent =
+                            "Invalid JSON";
+
+                        apiResponse.value =
+                            "Request body contains invalid JSON.";
+
+                        return;
+
+                    }
+
+                }
+
+            }
+
+
+            sendApiButton.disabled =
+                true;
+
+            sendApiButton.textContent =
+                "Sending...";
+
+            apiResponseStatus.textContent =
+                "Sending...";
+
+            apiResponse.value =
+                "";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/request",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                method: method,
+                                url: url,
+                                headers: headers,
+                                body: body
+                            })
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                if (!result.success) {
+
+                    apiResponseStatus.textContent =
+                        "Request Failed";
+
+                    apiResponse.value =
+                        result.error ||
+                        "Request failed.";
+
+                    return;
+
+                }
+
+
+                apiResponseStatus.textContent =
+                    `${result.status} ${result.statusText} • ${result.time} ms`;
+
+
+                let output =
+                    result.body || "";
+
+
+                try {
+
+                    const parsed =
+                        JSON.parse(output);
+
+                    output =
+                        JSON.stringify(
+                            parsed,
+                            null,
+                            2
+                        );
+
+                } catch (error) {
+
+                    // Not JSON.
+                    // Display response as plain text.
+
+                }
+
+
+                apiResponse.value =
+                    output;
+
+            } catch (error) {
+
+                apiResponseStatus.textContent =
+                    "Error";
+
+                apiResponse.value =
+                    `Unable to send request: ${error.message}`;
+
+            } finally {
+
+                sendApiButton.disabled =
+                    false;
+
+                sendApiButton.textContent =
+                    "Send";
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ---------- COPY RESPONSE ---------- */
+
+if (copyApiResponseButton) {
+
+    copyApiResponseButton.addEventListener(
+        "click",
+        async () => {
+
+            const output =
+                apiResponse.value;
+
+
+            if (!output) {
+                return;
+            }
+
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    output
+                );
+
+                apiResponseStatus.textContent =
+                    "Copied";
+
+            } catch (error) {
+
+                apiResponseStatus.textContent =
+                    "Copy failed";
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ---------- CLEAR API ---------- */
+
+if (clearApiButton) {
+
+    clearApiButton.addEventListener(
+        "click",
+        () => {
+
+            apiUrl.value = "";
+
+            apiHeaders.value = "";
+
+            apiBody.value = "";
+
+            apiResponse.value = "";
+
+            apiMethod.value =
+                "GET";
+
+            apiResponseStatus.textContent =
+                "Waiting";
+
+            if (apiBodySection) {
+                apiBodySection.style.display =
+                    "none";
+            }
+
+        }
+    );
+
+}
+
+
+/* ---------- INITIAL API STATE ---------- */
+
+if (apiBodySection) {
+    apiBodySection.style.display =
+        "none";
 }

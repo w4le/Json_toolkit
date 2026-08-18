@@ -899,3 +899,72 @@ button:active {
     }
 
 }
+/* =====================================================
+   API TESTER
+   ===================================================== */
+
+.api-request-panel,
+.api-response-panel {
+    margin-top: 24px;
+}
+
+.api-request-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.api-request-row select {
+    min-width: 110px;
+}
+
+.api-request-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.api-request-row select,
+.api-request-row input {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font: inherit;
+}
+
+.api-section {
+    margin-top: 20px;
+}
+
+.api-section-title {
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.api-section textarea,
+#apiResponse {
+    width: 100%;
+    min-height: 150px;
+    resize: vertical;
+    box-sizing: border-box;
+    padding: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 14px;
+}
+
+#apiResponse {
+    min-height: 300px;
+}
+
+@media (max-width: 700px) {
+
+    .api-request-row {
+        flex-direction: column;
+    }
+
+    .api-request-row select {
+        width: 100%;
+    }
+
+}

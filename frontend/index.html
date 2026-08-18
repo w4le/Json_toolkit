@@ -98,6 +98,22 @@
     </button>
 
     <button
+    class="tool-tab"
+    id="schemaTab"
+    type="button"
+    >
+    JSON Schema
+    </button>
+
+    <button
+    class="tool-tab"
+    id="apiTab"
+    type="button"
+>
+    API Tester
+</button>
+
+    <button
         class="tool-tab"
         id="csvTab"
         type="button"
@@ -853,6 +869,271 @@ Example:
         >
 
             Process your selected files to see results.
+
+        </div>
+
+    </section>
+
+</section>
+    <!-- =====================================================
+     JSON SCHEMA GENERATOR
+     ===================================================== -->
+
+<section
+    id="schemaTool"
+    class="schema-tool"
+    style="display: none;"
+>
+
+    <section class="hero">
+        <h2>
+            Generate
+            <span>JSON Schema.</span>
+        </h2>
+
+        <p>
+            Generate a JSON Schema from your JSON data.
+            Fast, simple, and developer friendly.
+        </p>
+    </section>
+
+    <section class="editor-container">
+
+        <!-- JSON INPUT -->
+        <div class="editor">
+
+            <div class="editor-header">
+                <span>INPUT JSON</span>
+
+                <span
+                    id="schemaInputStatus"
+                    class="status"
+                >
+                    Ready
+                </span>
+            </div>
+
+            <textarea
+                id="schemaInput"
+                spellcheck="false"
+                placeholder='Paste your JSON here...
+
+Example:
+{
+  "name": "John",
+  "age": 25,
+  "active": true
+}'
+            ></textarea>
+
+        </div>
+
+        <!-- SCHEMA OUTPUT -->
+        <div class="editor">
+
+            <div class="editor-header">
+                <span>JSON SCHEMA</span>
+
+                <span
+                    id="schemaOutputStatus"
+                    class="status"
+                >
+                    Waiting
+                </span>
+            </div>
+
+            <textarea
+                id="schemaOutput"
+                spellcheck="false"
+                readonly
+                placeholder="Generated JSON Schema will appear here..."
+            ></textarea>
+
+        </div>
+
+    </section>
+
+    <section class="controls">
+
+        <div class="button-group">
+
+            <button
+                id="generateSchemaButton"
+                class="primary"
+                type="button"
+            >
+                Generate Schema
+            </button>
+
+            <button
+                id="copySchemaButton"
+                type="button"
+            >
+                Copy
+            </button>
+
+            <button
+                id="downloadSchemaButton"
+                type="button"
+            >
+                Download Schema
+            </button>
+
+            <button
+                id="clearSchemaButton"
+                type="button"
+            >
+                Clear
+            </button>
+
+        </div>
+
+    </section>
+
+</section>
+
+    <!-- =====================================================
+     API TESTER
+     ===================================================== -->
+
+<section
+    id="apiTool"
+    class="api-tool"
+    style="display: none;"
+>
+
+    <section class="hero">
+
+        <h2>
+            Test your
+            <span>API.</span>
+        </h2>
+
+        <p>
+            Send HTTP requests and inspect API responses instantly.
+        </p>
+
+    </section>
+
+
+    <section class="api-request-panel">
+
+        <div class="api-request-row">
+
+            <select id="apiMethod">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="PATCH">PATCH</option>
+                <option value="DELETE">DELETE</option>
+            </select>
+
+
+            <input
+                id="apiUrl"
+                type="url"
+                placeholder="https://api.example.com/users"
+            >
+
+
+            <button
+                id="sendApiButton"
+                class="primary"
+                type="button"
+            >
+                Send
+            </button>
+
+        </div>
+
+
+        <div class="api-section">
+
+            <div class="api-section-title">
+                HEADERS
+            </div>
+
+            <textarea
+                id="apiHeaders"
+                spellcheck="false"
+                placeholder='{
+  "Content-Type": "application/json"
+}'
+            ></textarea>
+
+        </div>
+
+
+        <div
+            class="api-section"
+            id="apiBodySection"
+        >
+
+            <div class="api-section-title">
+                REQUEST BODY
+            </div>
+
+            <textarea
+                id="apiBody"
+                spellcheck="false"
+                placeholder='{
+  "name": "John"
+}'
+            ></textarea>
+
+        </div>
+
+    </section>
+
+
+    <section
+        id="apiResponsePanel"
+        class="api-response-panel"
+    >
+
+        <div class="diff-result-header">
+
+            <span>
+                RESPONSE
+            </span>
+
+            <span
+                id="apiResponseStatus"
+                class="status"
+            >
+                Waiting
+            </span>
+
+        </div>
+
+
+        <textarea
+            id="apiResponse"
+            spellcheck="false"
+            readonly
+            placeholder="API response will appear here..."
+        ></textarea>
+
+
+        <div class="controls">
+
+            <div class="button-group">
+
+                <button
+                    id="copyApiResponseButton"
+                    type="button"
+                >
+                    Copy Response
+                </button>
+
+                <button
+                    id="clearApiButton"
+                    type="button"
+                >
+                    Clear
+                </button>
+
+            </div>
 
         </div>
 
