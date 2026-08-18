@@ -1672,3 +1672,440 @@ if (clearDiffButton) {
     );
 
 }
+/* =====================================================
+   BATCH JSON PROCESSOR
+   ===================================================== */
+
+const batchTab = document.getElementById("batchTab");
+const batchTool = document.getElementById("batchTool");
+
+const batchFileInput = document.getElementById("batchFileInput");
+const batchFileList = document.getElementById("batchFileList");
+
+const batchFormatButton =
+    document.getElementById("batchFormatButton");
+
+const batchMinifyButton =
+    document.getElementById("batchMinifyButton");
+
+const batchClearButton =
+    document.getElementById("batchClearButton");
+
+const batchResultList =
+    document.getElementById("batchResultList");
+
+const batchResultCount =
+    document.getElementById("batchResultCount");
+
+
+let batchFiles = [];
+
+
+/* ---------- OPEN BATCH TOOL ---------- */
+
+if (batchTab) {
+
+    batchTab.addEventListener("click", () => {
+
+        document
+            .querySelectorAll(".tool-tab")
+            .forEach(tab => {
+                tab.classList.remove("active");
+            });
+
+        batchTab.classList.add("active");
+
+
+        const formatterTool =
+            document.getElementById("formatterTool");
+
+        const csvTool =
+            document.getElementById("csvTool");
+
+        const diffTool =
+            document.getElementById("diffTool");
+
+
+        if (formatterTool) {
+            formatterTool.style.display = "none";
+        }
+
+        if (csvTool) {
+            csvTool.style.display = "none";
+        }
+
+        if (diffTool) {
+            diffTool.style.display = "none";
+        }
+
+        if (batchTool) {
+            batchTool.style.display = "block";
+        }
+
+    });
+
+}
+
+
+/* ---------- FILE SELECTION ---------- */
+
+if (batchFileInput) {
+
+    batchFileInput.addEventListener("change", () => {
+
+        batchFiles =
+            Array.from(batchFileInput.files);
+
+        displayBatchFiles();
+
+    });
+
+}
+
+
+/* ---------- DISPLAY SELECTED FILES ---------- */
+
+function displayBatchFiles() {
+
+    batchFileList.innerHTML = "";
+
+
+    if (batchFiles.length === 0) {
+
+        const empty =
+            document.createElement("div");
+
+        empty.className =
+            "batch-empty";
+
+        empty.textContent =
+            "No files selected.";
+
+        batchFileList.appendChild(empty);
+
+        return;
+    }
+
+
+    batchFiles.forEach(file => {
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "batch-file";
+
+
+        const name =
+            document.createElement("span");
+
+        name.className =
+            "batch-file-name";
+
+        name.textContent =
+            file.name;
+
+
+        const status =
+            document.createElement("span");
+
+        status.className =
+            "batch-file-status";
+
+        status.textContent =
+            "Ready";
+
+
+        item.appendChild(name);
+        item.appendChild(status);
+
+        batchFileList.appendChild(item);
+
+    });
+
+}
+
+
+/* ---------- READ FILE ---------- */
+
+function readBatchFile(file) {
+
+    return new Promise((resolve, reject) => {
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload = () => {
+
+            resolve(reader.result);
+
+        };
+
+
+        reader.onerror = () => {
+
+            reject(
+                new Error("Unable to read file.")
+            );
+
+        };
+
+
+        reader.readAsText(file);
+
+    });
+
+}
+
+
+/* ---------- PROCESS FILES ---------- */
+
+async function processBatchFiles(mode) {
+
+    if (batchFiles.length === 0) {
+
+        batchResultList.textContent =
+            "Please select at least one JSON file.";
+
+        batchResultCount.textContent =
+            "No files";
+
+        return;
+    }
+
+
+    batchResultList.innerHTML = "";
+
+    batchResultCount.textContent =
+        "Processing...";
+
+
+    let successCount = 0;
+    let errorCount = 0;
+
+
+    for (const file of batchFiles) {
+
+        const result =
+            document.createElement("div");
+
+        result.className =
+            "batch-result";
+
+
+        const fileName =
+            document.createElement("div");
+
+        fileName.className =
+            "batch-result-name";
+
+        fileName.textContent =
+            file.name;
+
+
+        result.appendChild(fileName);
+
+
+        try {
+
+            const text =
+                await readBatchFile(file);
+
+            const json =
+                JSON.parse(text);
+
+
+            let output;
+
+
+            if (mode === "format") {
+
+                output =
+                    JSON.stringify(
+                        json,
+                        null,
+                        2
+                    );
+
+            } else {
+
+                output =
+                    JSON.stringify(json);
+
+            }
+
+
+            const status =
+                document.createElement("div");
+
+            status.className =
+                "batch-result-success";
+
+            status.textContent =
+                mode === "format"
+                    ? "✓ Valid — formatted"
+                    : "✓ Valid — minified";
+
+
+            result.appendChild(status);
+
+
+            /*
+             * Create a download button for
+             * the processed file.
+             */
+
+            const downloadButton =
+                document.createElement("button");
+
+            downloadButton.type =
+                "button";
+
+            downloadButton.textContent =
+                "Download";
+
+
+            downloadButton.addEventListener(
+                "click",
+                () => {
+
+                    const blob =
+                        new Blob(
+                            [output],
+                            {
+                                type:
+                                    "application/json"
+                            }
+                        );
+
+
+                    const url =
+                        URL.createObjectURL(blob);
+
+
+                    const link =
+                        document.createElement("a");
+
+                    link.href = url;
+
+                    link.download =
+                        mode === "format"
+                            ? file.name.replace(
+                                /\.json$/i,
+                                "-formatted.json"
+                            )
+                            : file.name.replace(
+                                /\.json$/i,
+                                "-minified.json"
+                            );
+
+
+                    document.body.appendChild(link);
+
+                    link.click();
+
+                    link.remove();
+
+                    URL.revokeObjectURL(url);
+
+                }
+            );
+
+
+            result.appendChild(
+                downloadButton
+            );
+
+
+            successCount++;
+
+
+        } catch (error) {
+
+            const status =
+                document.createElement("div");
+
+            status.className =
+                "batch-result-error";
+
+            status.textContent =
+                "✕ Invalid JSON";
+
+
+            result.appendChild(status);
+
+            errorCount++;
+
+        }
+
+
+        batchResultList.appendChild(
+            result
+        );
+
+    }
+
+
+    batchResultCount.textContent =
+        `${successCount} successful, ${errorCount} failed`;
+
+}
+
+
+/* ---------- FORMAT ALL ---------- */
+
+if (batchFormatButton) {
+
+    batchFormatButton.addEventListener(
+        "click",
+        () => {
+
+            processBatchFiles("format");
+
+        }
+    );
+
+}
+
+
+/* ---------- MINIFY ALL ---------- */
+
+if (batchMinifyButton) {
+
+    batchMinifyButton.addEventListener(
+        "click",
+        () => {
+
+            processBatchFiles("minify");
+
+        }
+    );
+
+}
+
+
+/* ---------- CLEAR ---------- */
+
+if (batchClearButton) {
+
+    batchClearButton.addEventListener(
+        "click",
+        () => {
+
+            batchFiles = [];
+
+            batchFileInput.value = "";
+
+            displayBatchFiles();
+
+            batchResultList.textContent =
+                "Process your selected files to see results.";
+
+            batchResultCount.textContent =
+                "Waiting";
+
+        }
+    );
+
+}

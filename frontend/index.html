@@ -87,7 +87,15 @@
     type="button"
     >
     JSON Diff
-</button>
+    </button>
+
+    <button
+    class="tool-tab"
+    id="batchTab"
+    type="button"
+    >
+    Batch JSON
+    </button>
 
     <button
         class="tool-tab"
@@ -713,6 +721,139 @@ Example:
             class="diff-output"
         >
             Compare two JSON documents to see their differences.
+        </div>
+
+    </section>
+
+</section>
+    <!-- =====================================================
+     BATCH JSON PROCESSOR
+     ===================================================== -->
+
+<section
+    id="batchTool"
+    class="batch-tool"
+    style="display: none;"
+>
+
+    <section class="hero">
+
+        <h2>
+            Process JSON
+            <span>in bulk.</span>
+        </h2>
+
+        <p>
+            Validate and process multiple JSON files at once.
+            Your files stay in your browser.
+        </p>
+
+    </section>
+
+
+    <section class="batch-upload">
+
+        <input
+            type="file"
+            id="batchFileInput"
+            accept=".json,application/json"
+            multiple
+            hidden
+        >
+
+        <label
+            for="batchFileInput"
+            class="batch-upload-area"
+        >
+
+            <div class="batch-upload-icon">
+                +
+            </div>
+
+            <strong>
+                Select JSON files
+            </strong>
+
+            <span>
+                Choose multiple .json files to process
+            </span>
+
+        </label>
+
+    </section>
+
+
+    <section
+        id="batchFileList"
+        class="batch-file-list"
+    >
+
+        <div class="batch-empty">
+            No files selected.
+        </div>
+
+    </section>
+
+
+    <section class="controls">
+
+        <div class="button-group">
+
+            <button
+                id="batchFormatButton"
+                class="primary"
+                type="button"
+            >
+                Format All
+            </button>
+
+            <button
+                id="batchMinifyButton"
+                type="button"
+            >
+                Minify All
+            </button>
+
+            <button
+                id="batchClearButton"
+                type="button"
+            >
+                Clear
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <section
+        id="batchResults"
+        class="batch-results"
+    >
+
+        <div class="diff-result-header">
+
+            <span>
+                BATCH RESULTS
+            </span>
+
+            <span
+                id="batchResultCount"
+                class="status"
+            >
+                Waiting
+            </span>
+
+        </div>
+
+
+        <div
+            id="batchResultList"
+            class="batch-result-list"
+        >
+
+            Process your selected files to see results.
+
         </div>
 
     </section>

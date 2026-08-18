@@ -723,3 +723,179 @@ button:active {
     }
 
 }
+/* =====================================================
+   BATCH JSON PROCESSOR
+   ===================================================== */
+
+.batch-tool {
+    margin-top: 10px;
+}
+
+.batch-upload {
+    margin-top: 20px;
+}
+
+.batch-upload-area {
+    min-height: 180px;
+    padding: 30px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+
+    background: rgba(16, 18, 24, 0.6);
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.batch-upload-area:hover {
+    border-color: var(--accent);
+    background: rgba(16, 18, 24, 0.85);
+}
+
+.batch-upload-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--border);
+    border-radius: 50%;
+
+    font-size: 28px;
+    color: var(--text);
+}
+
+.batch-upload-area strong {
+    margin-top: 8px;
+
+    color: var(--text);
+
+    font-size: 15px;
+}
+
+.batch-upload-area span {
+    color: var(--muted);
+
+    font-size: 13px;
+}
+
+.batch-file-list {
+    margin-top: 16px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.batch-empty {
+    padding: 18px;
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    color: var(--muted);
+
+    text-align: center;
+}
+
+.batch-file {
+    padding: 12px 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    background: rgba(8, 9, 12, 0.45);
+}
+
+.batch-file-name {
+    color: var(--text);
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.batch-file-status {
+    font-size: 12px;
+}
+
+.batch-results {
+    margin-top: 20px;
+
+    background: rgba(16, 18, 24, 0.86);
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    overflow: hidden;
+}
+
+.batch-result-list {
+    padding: 16px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.batch-result {
+    padding: 12px 14px;
+    margin-bottom: 8px;
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    background: rgba(8, 9, 12, 0.45);
+}
+
+.batch-result:last-child {
+    margin-bottom: 0;
+}
+
+.batch-result-name {
+    color: var(--text);
+
+    font-weight: 600;
+}
+
+.batch-result-success {
+    color: var(--success);
+}
+
+.batch-result-error {
+    color: #ff7180;
+}
+
+
+/* ---------- BATCH RESPONSIVE ---------- */
+
+@media (max-width: 700px) {
+
+    .batch-upload-area {
+        min-height: 150px;
+        padding: 20px;
+    }
+
+    .batch-file {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+}
