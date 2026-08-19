@@ -968,3 +968,89 @@ button:active {
     }
 
 }
+
+/* =========================================================
+   MOBILE TOOL NAVIGATION — OBVIOUS SCROLL AFFORDANCE
+   ========================================================= */
+
+.mobile-nav-hint {
+    display: none;
+}
+
+@media (max-width: 700px) {
+    .tool-nav {
+        position: relative;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-right: 54px;
+        scroll-behavior: smooth;
+        scrollbar-width: none;
+    }
+
+    .tool-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .mobile-nav-hint {
+        display: none;
+        position: absolute;
+        right: 8px;
+        margin-top: -50px;
+        z-index: 5;
+        align-items: center;
+        gap: 4px;
+        padding: 7px 9px;
+        border-radius: 999px;
+        background: rgba(20, 24, 31, 0.92);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1;
+        pointer-events: none;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+        animation: mobileNavHint 1.8s ease-in-out infinite;
+    }
+
+    .mobile-nav-hint.is-visible {
+        display: inline-flex;
+    }
+
+    .mobile-nav-hint-arrow {
+        font-size: 15px;
+        line-height: 8px;
+    }
+
+    /* Fade at the right edge makes the hidden tabs visually obvious. */
+    .tool-nav.has-more-tabs {
+        -webkit-mask-image: linear-gradient(
+            to right,
+            #000 0,
+            #000 calc(100% - 48px),
+            transparent 100%
+        );
+        mask-image: linear-gradient(
+            to right,
+            #000 0,
+            #000 calc(100% - 48px),
+            transparent 100%
+        );
+    }
+
+    @keyframes mobileNavHint {
+        0%, 100% {
+            transform: translateX(0);
+            opacity: 0.82;
+        }
+        50% {
+            transform: translateX(4px);
+            opacity: 1;
+        }
+    }
+}
+
+/* Users who prefer reduced motion still get the visual hint. */
+@media (prefers-reduced-motion: reduce) {
+    .mobile-nav-hint {
+        animation: none;
+    }
+}

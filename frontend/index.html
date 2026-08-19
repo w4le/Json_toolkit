@@ -136,6 +136,10 @@
     </button>
 
 </nav>
+<div class="mobile-nav-hint" aria-hidden="true">
+    <span class="mobile-nav-hint-text">Swipe to see more</span>
+    <span class="mobile-nav-hint-arrow">→</span>
+</div>
 
 
 <main>
@@ -1160,6 +1164,29 @@ Example:
 
 
 <script src="/static/script.js"></script>
+<script>
+/* Mobile tool navigation hint */
+(function () {
+    const nav = document.querySelector(".tool-nav");
+    const hint = document.querySelector(".mobile-nav-hint");
+    if (!nav || !hint) return;
+
+    const updateHint = () => {
+        const scrollable = nav.scrollWidth > nav.clientWidth + 2;
+        const atEnd = nav.scrollLeft + nav.clientWidth >= nav.scrollWidth - 8;
+
+        hint.classList.toggle("is-visible", scrollable && !atEnd);
+        nav.classList.toggle("has-more-tabs", scrollable && !atEnd);
+    };
+
+    nav.addEventListener("scroll", updateHint, { passive: true });
+    window.addEventListener("resize", updateHint);
+    window.addEventListener("load", updateHint);
+
+    // Give first-time mobile visitors a gentle nudge.
+    setTimeout(updateHint, 100);
+})();
+</script>
 
 
 </body>
