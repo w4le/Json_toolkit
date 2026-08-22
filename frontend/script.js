@@ -13,6 +13,9 @@ const batchTab =
 const schemaTab =
     document.getElementById("schemaTab");
 
+const apiTab =
+    document.getElementById("apiTab");
+
 
 const formatterTool =
     document.getElementById("formatterTool");
@@ -28,6 +31,9 @@ const batchTool =
 
 const schemaTool =
     document.getElementById("schemaTool");
+
+const apiTool =
+    document.getElementById("apiTool");
 
 
 /* =====================================================
@@ -117,9 +123,13 @@ if (formatterTab) {
             }
 
             if (schemaTool) {
-                schemaTool.style.display = "none";
+                schemaTool.style.display =
+                    "none";
             }
-
+            if (apiTool) {
+                apiTool.style.display =
+                    "none";
+            }
         }
     );
 
@@ -589,6 +599,10 @@ if (csvTab) {
                     "none";
             }
 
+            if (apiTool) {
+    apiTool.style.display = "none";
+            }
+
         }
     );
 
@@ -939,6 +953,9 @@ if (diffTab) {
             if (schemaTool) {
                 schemaTool.style.display =
                     "none";
+            }
+            if (apiTool) {
+    apiTool.style.display = "none";
             }
 
         }
@@ -1660,10 +1677,15 @@ if (batchTab) {
                     "none";
             }
 
+            if (apiTool) {
+    apiTool.style.display = "none";
+            }
+
             if (batchTool) {
                 batchTool.style.display =
                     "block";
             }
+
 
         }
     );
@@ -2173,7 +2195,8 @@ if (schemaTab) {
                 csvTool,
                 diffTool,
                 batchTool,
-                schemaTool
+                schemaTool,
+                apiTool
             ];
 
 
@@ -2615,12 +2638,6 @@ if (clearSchemaButton) {
    API TESTER
    ===================================================== */
 
-const apiTab =
-    document.getElementById("apiTab");
-
-const apiTool =
-    document.getElementById("apiTool");
-
 const apiMethod =
     document.getElementById("apiMethod");
 
@@ -3023,3 +3040,47 @@ if (apiBodySection) {
     apiBodySection.style.display =
         "none";
 }
+
+/* =====================================================
+   FINAL TOOL TAB VISIBILITY CONTROLLER
+   ===================================================== */
+
+const allToolTabs = {
+    formatterTab: formatterTool,
+    csvTab: csvTool,
+    diffTab: diffTool,
+    batchTab: batchTool,
+    schemaTab: schemaTool,
+    apiTab: apiTool
+};
+
+document
+    .querySelectorAll(".tool-tab")
+    .forEach(tab => {
+
+        tab.addEventListener(
+            "click",
+            () => {
+
+                Object.values(allToolTabs)
+                    .forEach(tool => {
+
+                        if (tool) {
+                            tool.style.display =
+                                "none";
+                        }
+
+                    });
+
+                const selectedTool =
+                    allToolTabs[tab.id];
+
+                if (selectedTool) {
+                    selectedTool.style.display =
+                        "block";
+                }
+
+            }
+        );
+
+    });
