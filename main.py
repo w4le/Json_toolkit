@@ -3,6 +3,8 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import json
+import os
+import psycopg
 import csv
 import io
 import urllib.request
@@ -35,6 +37,33 @@ def robots():
 def sitemap():
     return FileResponse("frontend/sitemap.xml", media_type="application/xml")
 
+@app.get("/db-test")
+def db_test():
+    try:
+        database_url = os.getenv("DATABASE_URL")
+
+        if not database_url:
+            return {
+                "success": False,
+                "error": "DATABASE_URL is not configured"
+            }
+
+        with psycopg.connect(database_url, connect_timeout=5) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT 1")
+                result = cursor.fetchone()
+
+        return {
+            "success": True,
+            "database": "connected",
+            "test": result[0] == 1
+        }
+
+    except Exception:
+        return {
+            "success": False,
+            "error": "Database connection failed"
+        }
 
 @app.post("/format")
 def format_json(request: JSONRequest):
