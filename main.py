@@ -59,10 +59,10 @@ def db_test():
             "test": result[0] == 1
         }
 
-    except Exception:
+    except Exception as e:
         return {
             "success": False,
-            "error": "Database connection failed"
+            "error": str(e)
         }
 
 @app.post("/format")
